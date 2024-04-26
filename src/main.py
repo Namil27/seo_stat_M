@@ -1,6 +1,4 @@
 import datetime
-import schedule
-
 from full_cycle_funcs import *
 
 
@@ -8,7 +6,7 @@ def full_cycle():
     """
     Функция собирающая данные и записывающая их в БД.
     """
-    date = datetime.datetime.today().strftime("%Y/%m/%d")
+    date = datetime.datetime.today().strftime("%Y-%m-%d")
     # Сохраняем данные в today
     today_media_reit = pars_reit_today(1, 4)
 
@@ -17,13 +15,4 @@ def full_cycle():
         add_data_in_table(media[0], date, media[1])
 
 
-def main():
-    schedule.every(1).minute.do(full_cycle)
-    # schedule.every(1).day.at('23:55').do(full_cycle)
-
-    while True:
-        schedule.run_pending()
-
-
-if __name__ == '__main__':
-    main()
+full_cycle()

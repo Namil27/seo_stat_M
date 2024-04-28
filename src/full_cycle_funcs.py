@@ -1,22 +1,15 @@
-import psycopg2
 import requests
 
-from DataBase_connection import *
 
-
-def add_redaction_table(red_name: str):
+def add_redaction_table(red_name: str, connection):
     """
-    Эта функция создает таблицу для СМИ в файле "reit_database.db".
+    Эта функция создает таблицу для СМИ в в базе данных liveinternet.
 
-    :param red_name: Название СМИ.(строка)
+    :param red_name: Название СМИ.
+    :param connection: Объект, представляющий открытое соединение с базой данных.
+
     """
-    connection = psycopg2.connect(
-        dbname=dbname,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
+
     cursor = connection.cursor()
     # Создаем таблицу для СМИ.
     cursor.execute(f"""
@@ -37,30 +30,41 @@ def add_redaction_table(red_name: str):
 
     # Сохраняем изменения и закрываем соединение
     connection.commit()
-    connection.close()
 
 
-def add_data_in_table(name_redacton: str, date: str, traffic: int):
+def add_data_in_table(name_redacton: str, today_date: str, traffic: int, connection):
     """
     Добавляет данные в табличку СМИ.
 
     :param name_redacton: Название СМИ.
-    :param date: Дата в виде DD-MM-YYYY.
-    :param traffic: Целое число трафика.
-    """
-    connection = psycopg2.connect(
-        dbname=dbname,
-        user=user,
-        password=password,
-        host=host,
-        port=port
-    )
-    cursor = connection.cursor()
+    :param today_date: Сегодняшняя дата в формате yy-mm-dd.
+    :param traffic: Траффик.
+    :param connection: Объект, представляющий открытое соединение с базой данных.
 
-    cursor.execute(f"""INSERT INTO "{name_redacton}" (date, traffic) VALUES (%s, %s)""", (date, traffic))
+    """
+
+    cursor = connection.cursor()
+    sql_insert_cmd = f"""INSERT INTO "{name_redacton}" VALUES (CURRENT_DATE, {traffic});"""
+
+    cursor.execute(f"""SELECT * FROM "{name_redacton}" ORDER BY date DESC LIMIT 1;""")
+    print(name_redacton)
+    result = cursor.fetchone()
+
+    if result is not None:
+        last_date_obj = result[0]
+        last_date_year = str(last_date_obj.year)
+        last_date_month = str(last_date_obj.month) if last_date_obj.month // 10 != 0 else '0' + str(last_date_obj.month)
+        last_date_day = str(last_date_obj.day) if last_date_obj.day // 10 != 0 else '0' + str(last_date_obj.day)
+        last_date = last_date_year + '-' + last_date_month + '-' + last_date_day
+        # Если запись не существует, выполнить запись данных
+        if last_date != today_date:
+            cursor.execute(sql_insert_cmd)
+        else:
+            pass
+    else:
+        cursor.execute(sql_insert_cmd)
 
     connection.commit()
-    connection.close()
 
 
 def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:

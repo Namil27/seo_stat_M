@@ -1,3 +1,4 @@
+
 import requests
 
 
@@ -65,6 +66,28 @@ def add_data_in_table(name_redacton: str, today_date: str, traffic: int, connect
         cursor.execute(sql_insert_cmd)
 
     connection.commit()
+
+
+def insert_missing_records(connection):
+    cursor = connection.cursor()
+
+    # Получить список всех таблиц в базе данных liveinternet
+    cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+    tables = cursor.fetchall()
+
+    # Пробегаемся по каждой таблице
+    for table in tables:
+        table_name = table[0]
+
+        # Проверяем, была ли сделана запись за сегодняшний день
+        cursor.execute(f"""SELECT COUNT(*) FROM "{table_name}" WHERE date = CURRENT_DATE;""")
+        count = cursor.fetchone()[0]
+
+        # Если запись за сегодняшний день отсутствует, вставляем запись
+        if count == 0:
+            cursor.execute(f"""INSERT INTO "{table_name}" (date, traffic) VALUES (CURRENT_DATE, NULL);""")
+            connection.commit()
+            # print(f"""Вставлена запись в таблицу "{table_name}" за {current_date} с traffic = None""")
 
 
 def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:

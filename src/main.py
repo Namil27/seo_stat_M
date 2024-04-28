@@ -18,15 +18,19 @@ def full_cycle():
         host=host,
         port=port
     )
-    # Сохраняем данные в today
+    # Сохраняем данные в today_media_reit.
     today_media_reit = pars_reit_today(1, 4)
-    date = datetime.now().strftime('%Y-%m-%d')
+    current_date = datetime.now().strftime('%Y-%m-%d')
 
     for media in today_media_reit:
         add_redaction_table(media[0], connection)
-        add_data_in_table(media[0], date, media[1], connection)
+        add_data_in_table(media[0], current_date, media[1], connection)
+
+    # Пробегвемся по всем табличкам и вставлем None во все котоые сегодня не вошли.
+    insert_missing_records(connection)
 
     connection.close()
 
 
+# Выполнем код.
 full_cycle()

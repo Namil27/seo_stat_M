@@ -48,7 +48,7 @@ def add_data_in_table(name_redacton: str, today_date: str, traffic: int, connect
     sql_insert_cmd = f"""INSERT INTO "{name_redacton}" VALUES (CURRENT_DATE, {traffic});"""
 
     cursor.execute(f"""SELECT * FROM "{name_redacton}" ORDER BY date DESC LIMIT 1;""")
-    print(name_redacton)
+    # print(name_redacton)
     result = cursor.fetchone()
 
     if result is not None:

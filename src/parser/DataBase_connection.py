@@ -1,5 +1,0 @@
-dbname = "liveinternet"
-user = "namil27"
-password = "BigBoy2005"
-host = "23.111.123.4"
-port = "5432"

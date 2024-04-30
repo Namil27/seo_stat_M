@@ -1,8 +1,8 @@
 import psycopg2
 
 from datetime import datetime
-from full_cycle_funcs import *
-from src.parser.praser_con_info import connect_args_parser
+from parsing_functions import *
+from src.conn_info.con_info import connect_args_parser
 
 
 def full_cycle():

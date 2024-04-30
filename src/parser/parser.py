@@ -20,10 +20,17 @@ def full_cycle():
         add_data_in_table(media[0], current_date, media[1], connection)
 
     # Пробегвемся по всем табличкам и вставлем None во все котоые сегодня не вошли.
-    insert_missing_records(connection)
 
     connection.close()
 
 
 # Выполнем код.
-full_cycle()
+try:
+    for _ in range(2):
+        full_cycle()
+
+except Exception as e:
+    print('Error: ', e)
+
+finally:
+    insert_missing_records(connection=psycopg2.connect(**connect_args_parser))

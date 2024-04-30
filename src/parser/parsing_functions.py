@@ -88,6 +88,8 @@ def insert_missing_records(connection):
             connection.commit()
             # print(f"""Вставлена запись в таблицу "{table_name}" за {current_date} с traffic = None""")
 
+    connection.close()
+
 
 def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
     """

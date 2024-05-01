@@ -14,23 +14,28 @@ def full_cycle():
     # Сохраняем данные в today_media_reit.
     today_media_reit = pars_reit_today(1, 4)
     current_date = datetime.now().strftime('%Y-%m-%d')
-
+    # Пробегаемся по каждому сми и записываем данные в соответствующую табличку в БД.
     for media in today_media_reit:
         add_redaction_table(media[0], connection)
         add_data_in_table(media[0], current_date, media[1], connection)
-
-    # Пробегвемся по всем табличкам и вставлем None во все котоые сегодня не вошли.
-
+    # Закрываем конект.
     connection.close()
 
 
-# Выполнем код.
+# Выполняем код.
 try:
-    for _ in range(2):
-        full_cycle()
+    full_cycle()
 
 except Exception as e:
     print('Error: ', e)
 
 finally:
-    insert_missing_records(connection=psycopg2.connect(**connect_args_parser))
+    # Повторно парсим, если в первый раз по какой-то причине что-то не с парсилось.
+    try:
+        full_cycle()
+    except Exception as e:
+        print('Error: ', e)
+    # Если и во второй раз по какой-то причине что-то не спарсилось, то пробегвемся по всем табличкам и вставлем None
+    # во все котоые сегодня не вошли в топ 120.
+    finally:
+        insert_missing_records(connection=psycopg2.connect(**connect_args_parser))

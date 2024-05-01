@@ -68,9 +68,18 @@ def add_data_in_table(name_redacton: str, today_date: str, traffic: int, connect
 
 
 def insert_missing_records(connection):
+    """
+    Функция для вставки отсутствующих записей в таблицы базы данных liveinternet.
+
+    :param connection: объект соединения psycopg2, соединение с базой данных PostgreSQL.
+
+    Эта функция перебирает каждую таблицу в базе данных liveinternet и проверяет, существует ли запись для текущей даты.
+    Если нет, она вставляет запись с текущей датой и значением трафика NULL.
+    """
+
     cursor = connection.cursor()
 
-    # Получить список всех таблиц в базе данных liveinternet
+    # Получаем список всех таблиц в базе данных liveinternet
     cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
     tables = cursor.fetchall()
 

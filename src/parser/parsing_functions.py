@@ -134,6 +134,20 @@ def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
 
 
 def get_list_medias_as_json(connection):
+    """
+    Функция для извлечения последних записей из таблиц базы данных liveinternet и сохранения в файл JSON.
+
+    :param connection: объект соединения psycopg2, cоединение с базой данных PostgreSQL.
+
+    :return: None
+
+    Эта функция выполняет SQL-запросы для каждой таблицы в базе данных "liveinternet" с целью получения последней
+    записи. Полученные данные затем сортируются по убыванию значений трафика и сохраняются в файл JSON
+    под названием "rating.json". Если происходит ошибка при подключении к базе данных или выполнении SQL-запроса,
+    ошибка будет выведена в консоль.
+
+    """
+
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")

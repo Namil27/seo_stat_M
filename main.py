@@ -1,3 +1,4 @@
+import json
 import psycopg2
 
 from fastapi import FastAPI
@@ -36,5 +37,15 @@ def get_data(media: str):
     try:
         data = get_data_as_json(media)
         return data
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/medias")
+def get_list_medias():
+    try:
+        with open('src/parser/rating.json') as file:
+            rating = json.load(file)
+        return rating
     except Exception as e:
         return {"error": str(e)}

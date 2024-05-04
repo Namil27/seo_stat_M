@@ -1,4 +1,5 @@
 import requests
+import json
 
 
 def add_redaction_table(red_name: str, connection):
@@ -47,7 +48,7 @@ def add_data_in_table(name_redacton: str, today_date: str, traffic: int, connect
     sql_insert_cmd = f"""INSERT INTO "{name_redacton}" VALUES (CURRENT_DATE, {traffic});"""
 
     cursor.execute(f"""SELECT * FROM "{name_redacton}" ORDER BY date DESC LIMIT 1;""")
-    # print(name_redacton)
+    print(name_redacton)
     result = cursor.fetchone()
 
     if result is not None:
@@ -130,3 +131,27 @@ def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
             today_reit.append((name, stat))
 
     return today_reit
+
+
+def get_list_medias_as_json(connection):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+            rows = cursor.fetchall()
+            last_records = {}
+
+            for row in rows:
+                media = row[0]
+                cursor.execute(f"""SELECT traffic FROM "{media}" ORDER BY date DESC LIMIT 1""")
+                last_traffic = cursor.fetchone()[0]
+                last_records[media] = last_traffic
+            # Сортировка словаря по убыванию ключей
+            sorted_records = dict(
+                sorted(last_records.items(), key=lambda x: x[1] if x[1] is not None else float('-inf'), reverse=True)
+            )
+
+            # Сохранение словаря в файл JSON
+            with open("rating.json", "w") as json_file:
+                json.dump(sorted_records, json_file, indent=4)
+    except Exception as e:
+        print(f"Error: {e}")

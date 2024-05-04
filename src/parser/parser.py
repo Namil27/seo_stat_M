@@ -35,7 +35,9 @@ finally:
         full_cycle()
     except Exception as e:
         print('Error: ', e)
-    # Если и во второй раз по какой-то причине что-то не спарсилось, то пробегвемся по всем табличкам и вставлем None
-    # во все котоые сегодня не вошли в топ 120.
     finally:
+        # Если и во второй раз по какой-то причине что-то не спарсил,то пробегвемся по всем табличкам и вставлем None
+        # во все котоые сегодня не вошли в топ 120.
         insert_missing_records(connection=psycopg2.connect(**connect_args_parser))
+        # Сохраняем рейтинг для фронт сайда.
+        get_list_medias_as_json(connection=psycopg2.connect(**connect_args_parser))

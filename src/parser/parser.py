@@ -1,3 +1,4 @@
+import os
 import psycopg2
 
 from datetime import datetime
@@ -10,7 +11,13 @@ def full_cycle():
     Функция собирающая данные и записывающая их в БД.
     """
     # Подключаемся к базе данных
-    connection = psycopg2.connect(**connect_args_parser)
+    connection = psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        dbname=os.getenv("DB_NAME")
+    )
     # Сохраняем данные в today_media_reit.
     today_media_reit = pars_reit_today(1, 4)
     current_date = datetime.now().strftime('%Y-%m-%d')

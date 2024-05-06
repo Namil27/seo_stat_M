@@ -1,5 +1,5 @@
 connect_args_user = {
-    "dbname": "liveinternet",
+    "database": "liveinternet",
     "user": "common_user",
     "password": "russian_power",
     "host": "23.111.123.4",

@@ -43,5 +43,4 @@ services:
     entrypoint: ["cron", "-f"]
 
 volumes:
-  timescaledb_data:
   db:

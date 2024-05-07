@@ -26,7 +26,7 @@ async def get_data_as_json(media: str):
             port=os.getenv("DB_PORT"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            dbname=os.getenv("DB_NAME")
+            database=os.getenv("DB_NAME")
         )
         async with conn.transaction():
             rows = await conn.fetch(f"""SELECT * FROM "{media}";""")

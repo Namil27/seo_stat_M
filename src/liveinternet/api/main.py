@@ -73,7 +73,7 @@ async def get_list_medias():
     Если происходит ошибка, функция возвращает словарь с ключом "error" и описанием ошибки.
     """
     try:
-        async with aiofiles.open('src/parser/rating.json', mode='r') as file:
+        async with aiofiles.open('data/rating.json', mode='r') as file:
             rating = await file.read()
         return json.loads(rating)
     except Exception as e:

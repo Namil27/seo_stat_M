@@ -165,7 +165,7 @@ def get_list_medias_as_json(connection):
             )
 
             # Сохранение словаря в файл JSON
-            with open("rating.json", "w") as json_file:
+            with open("data/rating.json", "w") as json_file:
                 json.dump(sorted_records, json_file, indent=4)
     except Exception as e:
         print(f"Error: {e}")

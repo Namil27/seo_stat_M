@@ -21,6 +21,7 @@ services:
       - "8000:8000"
     volumes:
       - ./api:/app
+      - shared_data:/app/data
     depends_on:
       - timescaledb
     restart: unless-stopped
@@ -37,6 +38,7 @@ services:
     container_name: liveinternet_parser
     volumes:
       - ./parser:/app
+      - shared_data:/app/data
     depends_on:
       - timescaledb
     restart: unless-stopped
@@ -50,3 +52,4 @@ services:
 
 volumes:
   db:
+  shared_data:

@@ -26,7 +26,7 @@ services:
       - timescaledb
     restart: unless-stopped
     environment:
-      DB_HOST: localhost
+      DB_HOST: timescaledb
       DB_PORT: 5432
       DB_USER: api
       DB_PASSWORD: super_hard_password
@@ -43,7 +43,7 @@ services:
       - timescaledb
     restart: unless-stopped
     environment:
-      DB_HOST: localhost
+      DB_HOST: timescaledb
       DB_PORT: 5432
       DB_USER: parser
       DB_PASSWORD: mega_hard_password_qwerty

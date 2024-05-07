@@ -8,8 +8,14 @@ import sqlite3
 app = Flask(__name__)
 
 
+@app.route('/')
+def start():
+    return render_template('start.html', left_table=sidebar_placeholder)
+
+
 @app.route('/chart/<path:value>')
 def main_view(value):
+    page = 'main.html'
     redirect_url = request.args.get('redirect')
     if redirect_url:
         return redirect(f'/chart/{redirect_url}', 301)
@@ -25,8 +31,10 @@ def main_view(value):
     data = {date[:-5]: value for date, value in data}
     json_data = json.dumps(data)
 
-    return render_template('main.html',
-                           active='chart',
+    if value not in [i['link'] for i in sidebar_placeholder]:
+        page = 'not_found.html'
+
+    return render_template(template_name_or_list=page,
                            site=value,
                            chart_data=json_data,
                            table_data=table_data,

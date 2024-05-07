@@ -2,7 +2,6 @@
 <html lang="en" data-bs-theme="auto">
 <head>
     <script src="{{ url_for('static', filename='/assets/js/color-modes.js') }}"></script>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
@@ -20,6 +19,7 @@
     <link href="{{ url_for('static', filename='extra.css') }}" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/2.0.5/css/dataTables.bootstrap5.css" rel="stylesheet">
 
     <link href="{{ url_for('static', filename='dashboard.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='/css/bootstrap-datepicker.css') }}" rel="stylesheet">
@@ -44,57 +44,6 @@
     </symbol>
 </svg>
 
-<div class="dropdown position-fixed bottom-0 end-1 mb-0 p-2 bd-mode-toggle">
-    <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-            id="bd-theme"
-            type="button"
-            aria-expanded="false"
-            data-bs-toggle="dropdown"
-            aria-label="Toggle theme (auto)">
-        <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
-            <use href="#circle-half"></use>
-        </svg>
-        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
-        <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
-                    aria-pressed="false">
-                <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
-                    <use href="#sun-fill"></use>
-                </svg>
-                Light
-                <svg class="bi ms-auto d-none" width="1em" height="1em">
-                    <use href="#check2"></use>
-                </svg>
-            </button>
-        </li>
-        <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
-                    aria-pressed="false">
-                <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
-                    <use href="#moon-stars-fill"></use>
-                </svg>
-                Dark
-                <svg class="bi ms-auto d-none" width="1em" height="1em">
-                    <use href="#check2"></use>
-                </svg>
-            </button>
-        </li>
-        <li>
-            <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
-                    aria-pressed="true">
-                <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
-                    <use href="#circle-half"></use>
-                </svg>
-                Auto
-                <svg class="bi ms-auto d-none" width="1em" height="1em">
-                    <use href="#check2"></use>
-                </svg>
-            </button>
-        </li>
-    </ul>
-</div>
 
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="calendar3" viewBox="0 0 16 16">
@@ -175,16 +124,63 @@
             </button>
         </li>
     </ul>
-
-    <div id="navbarSearch" class="navbar-search w-100 collapse">
-        <input class="form-control w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
+    <div class="dropdown position-fixed end-0 mb-0 p-2 bd-mode-toggle">
+        <button class="btn py-2 dropdown-toggle d-flex align-items-center"
+                id="bd-theme"
+                type="button"
+                aria-expanded="false"
+                data-bs-toggle="dropdown"
+                aria-label="Toggle theme (auto)" style="color: white; outline-width: 0">
+            <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
+                <use href="#circle-half"></use>
+            </svg>
+            <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
+                        aria-pressed="false">
+                    <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                        <use href="#sun-fill"></use>
+                    </svg>
+                    Light
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
+                        aria-pressed="false">
+                    <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                        <use href="#moon-stars-fill"></use>
+                    </svg>
+                    Dark
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
+                        aria-pressed="true">
+                    <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                        <use href="#circle-half"></use>
+                    </svg>
+                    Auto
+                    <svg class="bi ms-auto d-none" width="1em" height="1em">
+                        <use href="#check2"></use>
+                    </svg>
+                </button>
+            </li>
+        </ul>
     </div>
 </header>
 
 <div class="container-fluid vh-100">
     <div class="row h-100">
-        <div class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
-            <div class="offcanvas-md offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu"
+        <div class="border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
+            <div class="offcanvas-md sidebar-scroll offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu"
                  aria-labelledby="sidebarMenuLabel">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="sidebarMenuLabel">🌐 LiveInternet Stats</h5>
@@ -192,29 +188,52 @@
                             aria-label="Close"></button>
                 </div>
                 <table class="table-extra noBorder table table-sm">
-                    <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
                     <tbody>
-                    <ul class="nav">
-                        {% for data in left_table %}
-                        <tr class="">
-                            <td class="table-text-right">{{ data['rank'] }}</td>
-                            <td><img src="https://www.liveinternet.ru/favicon/{{ data['link'] }}.ico" width="16"
-                                     height="16" border="0">
-                                <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                                   href="/chart/{{ data['link'] }}">{{ data['link'][0:20] }}</a></td>
-                            <td class="table-text-right"><a>{{ data['visitors'] }}</a></td>
-                        </tr>
-                        {% endfor %}
-                    </ul>
+                    {% for data in left_table %}
+                    <tr class="">
+                        <td class="text-end">
+                            <div class="table-text-grey">{{ data['rank'] }}</div>
+                        </td>
+                        <td>
+                            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                               href="/chart/{{ data['link'] }}">
+                                <div class="truncate-180">
+                                    <img src="https://www.liveinternet.ru/favicon/{{ data['link'] }}.ico" width="16"
+                                         height="16" border="0">
+                                    {{ data['link'] }}
+                                </div>
+                            </a>
+                        </td>
+                        <td class="text-end">
+                            <div class="table-text-grey truncate-80">{{ data['visitors'] }}</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
+            <script>
+        // Функция для сохранения позиции скролла
+        function saveScrollPosition() {
+            const sidebar = document.getElementById('sidebarMenu');
+            sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop);
+        }
+
+        // Функция для восстановления позиции скролла
+        function loadScrollPosition() {
+            const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
+            if (savedPosition) {
+                const sidebar = document.getElementById('sidebarMenu');
+                sidebar.scrollTop = savedPosition;
+            }
+        }
+
+        // Событие прокрутки для сохранения позиции скролла
+        document.getElementById('sidebarMenu').addEventListener('scroll', saveScrollPosition);
+
+        // Загрузка сохраненной позиции скролла при загрузке страницы
+        window.onload = loadScrollPosition;
+    </script>
         </div>
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             {% block body %}
@@ -281,5 +300,9 @@
         })
     })()
 </script>
+
+<script src="{{ url_for('static', filename='/dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='/dataTables.bootstrap5.js') }}"></script>
+<script>new DataTable('#example');</script>
 </body>
 </html>

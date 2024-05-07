@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="border-bottom">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">График {{ site }} <img src="https://www.liveinternet.ru/favicon/{{ site }}.ico" width="24"
+                                              height="24" border="0"></h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="input-daterange input-group me-2" id="datepicker">
+                <input type="text" class="input-sm form-select btn btn-sm btn-outline-secondary btn-extra"
+                       name="start"/>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-extra">
+                    <svg class="bi">
+                        <use xlink:href="#calendar3"/>
+                    </svg>
+                </button>
+                <input type="text" class="input-sm form-select btn btn-sm btn-outline-secondary btn-extra" name="end"/>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary">
+                    Применить
+                </button>
+            </div>
+            <div class="btn-group me-2">
+                <button onclick="exportToCsv('myTable')" type="button" class="btn btn-sm btn-outline-secondary">Скачать CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+
+    <h2>Таблица</h2>
+
+    <div class="clearfix"></div>
+    <div class="table-responsive small">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <!-- Pagination controls will be dynamically added here -->
+            </ul>
+        </nav>
+        <table id="myTable" class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th scope="col">index</th>
+                <th scope="col">date</th>
+                <th scope="col">visitors</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for line in table_data %}
+            <tr class="data-row">
+                <td>{{ line[0] }}</td>
+                <td>{{ line[1][0] }}</td>
+                <td>{{ line[1][1] }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <h1>dqwdfqw</h1>
+    </div>
+</div>
+
+<script>
+    function exportToCsv(tableId) {
+        var csv = [];
+        var rows = document.querySelectorAll("#" + tableId + " tbody tr");
+
+        rows.forEach(function(row) {
+            var rowData = [];
+            var cols = row.querySelectorAll("td");
+
+            for (var i = 1; i < cols.length; i++) {
+                // Используем trim() для удаления лишних пробелов в начале и конце текста
+                rowData.push('"' + cols[i].innerText.trim().replace(/"/g, '""') + '"');
+            }
+
+            csv.push(rowData.join(","));
+        });
+
+        // Создаем содержимое CSV-файла
+        var csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+
+        // Создаем ссылку для скачивания CSV-файла
+        var link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", "table.csv");
+        link.style.display = "none";
+        document.body.appendChild(link);
+
+        // Симулируем клик по ссылке для скачивания файла
+        link.click();
+
+        // Удаляем ссылку из документа
+        document.body.removeChild(link);
+    }
+</script>
+
+
+
+
+{% endblock %}

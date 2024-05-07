@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: i@eS*gs@4fSwBg\
+      POSTGRES_USER: postgres
+      POSTGRES_DB: liveinternet
+    volumes:
+      - db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  fastapiapp:
+    build: ./api
+    container_name: liveinternet_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+    depends_on:
+      - timescaledb
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  parser:
+    build: ./parser
+    container_name: liveinternet_parser
+    volumes:
+      - ./parser:/app
+    depends_on:
+      - timescaledb
+    restart: unless-stopped
+    environment:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: parser
+      DB_PASSWORD: mega_hard_password_qwerty
+      DB_NAME: liveinternet
+    entrypoint: ["cron", "-f"]
+
+volumes:
+  timescaledb_data:

@@ -44,3 +44,4 @@ services:
 
 volumes:
   timescaledb_data:
+  db:

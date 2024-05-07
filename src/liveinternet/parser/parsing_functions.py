@@ -115,7 +115,7 @@ def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
     ]
     today_reit = []
 
-    for i in range(start_page, end_page+1):
+    for i in range(start_page, end_page + 1):
         url_stat = f"https://www.liveinternet.ru/rating/ru/media/today.tsv?page={i}"
         # Разбили строку на спиок, в каждом элементе которого храняться данные о редакции в строков виде.
         data_arr = requests.get(url_stat).text.split('\n')

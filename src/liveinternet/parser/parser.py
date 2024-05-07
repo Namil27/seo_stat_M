@@ -44,6 +44,18 @@ finally:
     finally:
         # Если и во второй раз по какой-то причине что-то не спарсил,то пробегвемся по всем табличкам и вставлем None
         # во все котоые сегодня не вошли в топ 120.
-        insert_missing_records(connection=psycopg2.connect(**connect_args_parser))
+        insert_missing_records(connection=psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            dbname=os.getenv("DB_NAME")
+        ))
         # Сохраняем рейтинг для фронт сайда.
-        get_list_medias_as_json(connection=psycopg2.connect(**connect_args_parser))
+        get_list_medias_as_json(connection=psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            dbname=os.getenv("DB_NAME")
+        ))

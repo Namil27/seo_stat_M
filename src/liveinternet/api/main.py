@@ -1,9 +1,8 @@
 import aiofiles
 import asyncpg
 import json
+import os
 from fastapi import FastAPI, HTTPException
-
-from src.conn_info.con_info import connect_args_user
 
 
 async def get_data_as_json(media: str):
@@ -22,7 +21,13 @@ async def get_data_as_json(media: str):
     """
     conn = None
     try:
-        conn = await asyncpg.connect(**connect_args_user)
+        conn = await asyncpg.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            dbname=os.getenv("DB_NAME")
+        )
         async with conn.transaction():
             rows = await conn.fetch(f"""SELECT * FROM "{media}";""")
             data = {row[0].strftime('%Y-%m-%d'): row[1] for row in rows}
@@ -32,6 +37,7 @@ async def get_data_as_json(media: str):
     finally:
         if conn:
             await conn.close()
+
 
 app = FastAPI()
 

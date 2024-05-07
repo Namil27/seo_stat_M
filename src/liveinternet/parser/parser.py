@@ -3,7 +3,6 @@ import psycopg2
 
 from datetime import datetime
 from parsing_functions import *
-from src.conn_info.con_info import connect_args_parser
 
 
 def full_cycle():

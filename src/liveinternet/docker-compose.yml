@@ -24,6 +24,12 @@ services:
     depends_on:
       - timescaledb
     restart: unless-stopped
+    environment:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: api
+      DB_PASSWORD: super_hard_password
+      DB_NAME: liveinternet
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   parser:
@@ -40,7 +46,7 @@ services:
       DB_USER: parser
       DB_PASSWORD: mega_hard_password_qwerty
       DB_NAME: liveinternet
-    entrypoint: ["cron", "-f"]
+    entrypoint: [ "cron", "-f" ]
 
 volumes:
   db:

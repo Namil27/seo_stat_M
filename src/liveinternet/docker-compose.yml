@@ -11,7 +11,9 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: liveinternet
     volumes:
-      - db:/var/lib/postgresql/data
+      - db/data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: ["/docker-entrypoint.sh", "postgres"]
     restart: unless-stopped
 
   fastapiapp:

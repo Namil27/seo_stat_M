@@ -1,2 +1,2 @@
 # Это файл cron, который запускает скрипт parser.py каждый день в 23:55
-55 23 * * * python3 /app/parser.py >> /var/log/cron.log 2>&1
+55 20 * * * python3 /app/parser.py >> /var/log/cron.log 2>&1

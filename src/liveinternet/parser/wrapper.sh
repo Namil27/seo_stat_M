@@ -7,4 +7,4 @@ export DB_PASSWORD="super_hard_password"
 export DB_NAME="liveinternet"
 
 # Запуск Python скрипта
-/usr/local/bin/python3 /app/parser.py >> /var/log/cron.log 2>&1
+/usr/local/bin/python3 /app/parser.py >> /app/cron.log 2>&1

@@ -17,9 +17,6 @@ COPY crontab /etc/cron.d/parser-cron
 RUN chmod 0644 /etc/cron.d/parser-cron
 RUN crontab /etc/cron.d/parser-cron
 
-# Установка прав на выполнение для wrapper.sh
-RUN chmod +x /app/wrapper.sh
-
 # Копирование и настройка точки входа
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

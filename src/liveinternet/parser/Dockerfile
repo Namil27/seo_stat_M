@@ -20,5 +20,9 @@ RUN crontab /etc/cron.d/parser-cron
 # Установка прав на выполнение для wrapper.sh
 RUN chmod +x /app/wrapper.sh
 
-# Запуск cron
-CMD ["cron", "-f"]
+# Копирование и настройка точки входа
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Запуск через entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

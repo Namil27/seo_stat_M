@@ -1,2 +1,1 @@
-# Это задание cron, которое запускает скрипт wrapper.sh каждый день в 23:55 по МСК
-55 20 * * * /app/wrapper.sh
+55 20 * * * root . /etc/environment; python /app/parser.py >> /var/log/cron.log 2>&1

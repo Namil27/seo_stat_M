@@ -1,1 +1,1 @@
-55 20 * * * root . /etc/environment; /usr/local/bin/python3 /app/parser.py >> /var/log/cron.log 2>&1
+55 20 * * * /bin/bash -c 'source /app/env.sh && /usr/bin/python3 /app/parser.py'

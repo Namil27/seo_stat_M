@@ -43,13 +43,9 @@ services:
     depends_on:
       - timescaledb
     restart: unless-stopped
-    environment:
-      DB_HOST: timescaledb
-      DB_PORT: 5432
-      DB_USER: parser
-      DB_PASSWORD: mega_hard_password_qwerty
-      DB_NAME: liveinternet
-    entrypoint: [ "cron", "-f" ]
+    command: >
+      /bin/bash -c "echo '55 20 * * * DB_HOST=\"timescaledb\" DB_PORT=\"5432\" DB_USER=\"parser\" DB_PASSWORD=\"mega_hard_password_qwerty\" DB_NAME=\"liveinternet\"  /usr/local/bin/python3 /app/parser.py >> /var/log/cron.log 2>&1' > /etc/crontab &&
+      cron -f"
 
 volumes:
   db:

@@ -19,9 +19,10 @@ def main_view(value):
     redirect_url = request.args.get('redirect')
     if redirect_url:
         return redirect(f'/chart/{redirect_url}', 301)
-    search = request.args.get('search', '')
+    search = request.args.get('search')
+    print(search)
     if search:
-        sidebar = [i for i in sidebar_placeholder if i['link']]
+        sidebar = [i for i in sidebar_placeholder if search in i['link']]
     else:
         sidebar = sidebar_placeholder
     # Временное решение, пока не готова back-end часть

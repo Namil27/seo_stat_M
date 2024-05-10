@@ -11,6 +11,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копирование всего приложения в контейнер
 COPY . .
-
-# Запуск cron
-CMD ["/app/start.sh"]

@@ -153,3 +153,8 @@ main {
     display: none; /* Скрывает скроллбар */
 }
 
+#sidebarMenu {
+  visibility: hidden;
+  transition: visibility 0.3s;
+}
+

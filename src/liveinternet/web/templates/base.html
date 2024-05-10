@@ -99,11 +99,11 @@
 </svg>
 
 <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">🌐 LiveInternet Stats</a>
-    <form class="w-100" role="search" method="GET">
-        <input type="site" class="form-control rounded-0" placeholder="site.com" name="redirect" value="{{ site }}"
+    <form class="col-md-3 col-lg-2 me-0 fs-6 text-white" role="search" method="GET">
+        <input type="site" class="form-control rounded-0" placeholder="site.com" name="search" value="{{ search }}"
                control-id="ControlID-1">
     </form>
+    <a class="w-100 navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">🌐 LiveInternet Stats</a>
     <ul class="navbar-nav flex-row d-md-none">
         <li class="nav-item text-nowrap">
             <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse"
@@ -225,9 +225,9 @@
             if (savedPosition) {
                 const sidebar = document.getElementById('sidebarMenu');
                 sidebar.scrollTop = savedPosition;
+                sidebar.style.visibility = 'visible'; // Сайдбар становится видимым только после установки скролла
             }
         }
-
         // Событие прокрутки для сохранения позиции скролла
         document.getElementById('sidebarMenu').addEventListener('scroll', saveScrollPosition);
 
@@ -242,7 +242,6 @@
     </div>
 </div>
 <script src="{{ url_for('static', filename='/assets/dist/js/bootstrap.bundle.min.js') }}"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js"
         integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp"
         crossorigin="anonymous"></script>

@@ -19,8 +19,11 @@ def main_view(value):
     redirect_url = request.args.get('redirect')
     if redirect_url:
         return redirect(f'/chart/{redirect_url}', 301)
-    # search = request.args.get('search', '')
-
+    search = request.args.get('search', '')
+    if search:
+        sidebar = [i for i in sidebar_placeholder if i['link']]
+    else:
+        sidebar = sidebar_placeholder
     # Временное решение, пока не готова back-end часть
     db = sqlite3.connect('test_db/data.db')
     cur = db.cursor()
@@ -38,7 +41,7 @@ def main_view(value):
                            site=value,
                            chart_data=json_data,
                            table_data=table_data,
-                           left_table=sidebar_placeholder)
+                           left_table=sidebar)
 
 
 @app.after_request

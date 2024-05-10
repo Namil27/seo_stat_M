@@ -12,10 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копирование всего приложения в контейнер
 COPY . .
 
-# Добавление и установка cron задачи
-COPY crontab /etc/cron.d/parser-cron
-RUN chmod 0644 /etc/cron.d/parser-cron
-RUN crontab /etc/cron.d/parser-cron
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Запуск cron
 CMD ["cron", "-f"]

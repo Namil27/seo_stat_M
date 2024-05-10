@@ -1,1 +1,2 @@
-55 20 * * * /bin/bash -c 'source /app/env.sh && /usr/bin/python3 /app/parser.py'
+# Это файл cron, который запускает скрипт parser.py каждый день в 23:55 по МСК
+55 20 * * * /usr/local/bin/python3 /app/parser.py >> /var/log/cron.log 2>&1

@@ -49,7 +49,7 @@ services:
       DB_USER: parser
       DB_PASSWORD: mega_hard_password_qwerty
       DB_NAME: liveinternet
-    command: env > env.sh
+    command: [ "/app/start.sh" ]
 
 volumes:
   db:

@@ -189,23 +189,23 @@
                 </div>
                 <table class="table-extra noBorder table table-sm">
                     <tbody>
-                    {% for data in left_table %}
+                    {% for line in left_table %}
                     <tr class="">
                         <td class="text-end">
-                            <div class="table-text-grey">{{ data['rank'] }}</div>
+                            <div class="table-text-grey">{{ line['rank'] }}</div>
                         </td>
                         <td>
                             <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                               href="/chart/{{ data['link'] }}">
+                               href="/chart/{{ line['link'] }}">
                                 <div class="truncate-180">
-                                    <img src="https://www.liveinternet.ru/favicon/{{ data['link'] }}.ico" width="16"
+                                    <img src="https://www.liveinternet.ru/favicon/{{ line['link'] }}.ico" width="16"
                                          height="16" border="0">
-                                    {{ data['link'] }}
+                                    {{ line['link'] }}
                                 </div>
                             </a>
                         </td>
                         <td class="text-end">
-                            <div class="table-text-grey truncate-80">{{ data['visitors'] }}</div>
+                            <div class="table-text-grey truncate-80">{{ line['visitors'] }}</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -224,7 +224,7 @@ function loadScrollPosition() {
     const sidebar = document.getElementById('sidebarMenu');
     const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
     if (savedPosition) {
-        sidebar.scrollTop = 90;
+        sidebar.scrollTop = savedPosition;
     }
     sidebar.style.visibility = 'visible'; // Сделать сайдбар видимым независимо от наличия сохранённой позиции
 }

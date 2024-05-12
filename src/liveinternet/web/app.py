@@ -16,16 +16,15 @@ def start():
 
 @app.route('/chart/<path:value>')
 def main_view(value):
+    api_rating = requests.get('http://23.111.123.4:8000/medias').json()
+    lines = [{'rank': rank, 'link': link, 'visitors': api_rating[link]} for rank, link in enumerate(api_rating, start=1)]
     page = 'main.html'
-    redirect_url = request.args.get('redirect')
-    if redirect_url:
-        return redirect(f'/chart/{redirect_url}', 301)
+
     search = request.args.get('search')
-    print(search)
     if search:
-        sidebar = [i for i in sidebar_placeholder if search in i['link']]
+        sidebar = [i for i in lines if search in i['link']]
     else:
-        sidebar = sidebar_placeholder
+        sidebar = lines
     # Временное решение, пока не готова back-end часть
     db = sqlite3.connect('test_db/data.db')
     cur = db.cursor()
@@ -36,7 +35,7 @@ def main_view(value):
     data = {date[:-5]: value for date, value in data}
     json_data = json.dumps(data)
 
-    if value not in [i['link'] for i in sidebar_placeholder]:
+    if value not in [i['link'] for i in lines]:
         page = 'not_found.html'
 
     return render_template(template_name_or_list=page,

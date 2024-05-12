@@ -17,31 +17,47 @@ def start():
 @app.route('/chart/<path:value>')
 def main_view(value):
     api_rating = requests.get('http://23.111.123.4:8000/medias').json()
-    lines = [{'rank': rank, 'link': link, 'visitors': api_rating[link]} for rank, link in enumerate(api_rating, start=1)]
-    page = 'main.html'
+    lines = []
+    for rank, link in enumerate(api_rating, start=1):
+        if api_rating[link]:
+            visitors = format(int(api_rating[link]), ',').replace(',', ' ')
+        else:
+            visitors = '. . .'
+        line = {'rank': rank, 'link': link, 'visitors': visitors}
+        lines.append(line)
 
     search = request.args.get('search')
     if search:
         sidebar = [i for i in lines if search in i['link']]
     else:
         sidebar = lines
-    # Временное решение, пока не готова back-end часть
-    db = sqlite3.connect('test_db/data.db')
-    cur = db.cursor()
-    cur.execute(f""" SELECT * from data """)
-    data = cur.fetchall()
-
-    table_data = enumerate(data, start=1)
-    data = {date[:-5]: value for date, value in data}
-    json_data = json.dumps(data)
+        search = ''
 
     if value not in [i['link'] for i in lines]:
-        page = 'not_found.html'
+        return render_template(template_name_or_list='not_found.html',
+                               site=value,
+                               left_table=sidebar,
+                               search_text=search)
 
-    return render_template(template_name_or_list=page,
+    api_data = requests.get('http://23.111.123.4:8000/data/' + value).json()
+    table_api_data = []
+    for index, date in enumerate(api_data, start=1):
+        if api_data[date]:
+            visitors = format(int(api_data[date]), ',').replace(',', ' ')
+        else:
+            visitors = '-'
+        line = {'index': index, 'date': date, 'visitors': visitors}
+        table_api_data.append(line)
+    print(table_api_data)
+    chart_api_data = {key[5:]: value for key, value in api_data.items() if value is not None}
+    print(api_data)
+    print(chart_api_data)
+    json_data = json.dumps(api_data)
+
+    return render_template(template_name_or_list='main.html',
                            site=value,
-                           chart_data=json_data,
-                           table_data=table_data,
+                           chart_data=json.dumps(chart_api_data),
+                           table_data=table_api_data,
                            left_table=sidebar,
                            search_text=search)
 
@@ -55,4 +71,4 @@ def add_header(response):
 
 
 if __name__ == '__main__':
-    app.run(port=9999)
+    app.run(port=9999, debug=True)

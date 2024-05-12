@@ -2,7 +2,7 @@
 {% block body %}
 <div class="border-bottom">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">График {{ site }} <img src="https://www.liveinternet.ru/favicon/{{ site }}.ico" width="24"
+        <h1 class="h2">{{ site }} <img src="https://www.liveinternet.ru/favicon/{{ site }}.ico" width="24"
                                               height="24" border="0"></h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="input-daterange input-group me-2" id="datepicker">
@@ -27,8 +27,6 @@
 
     <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 
-    <h2>Таблица</h2>
-
     <div class="clearfix"></div>
     <div class="table-responsive small">
         <nav aria-label="Page navigation example">
@@ -47,14 +45,13 @@
             <tbody>
             {% for line in table_data %}
             <tr class="data-row">
-                <td>{{ line[0] }}</td>
-                <td>{{ line[1][0] }}</td>
-                <td>{{ line[1][1] }}</td>
+                <td>{{ line['index'] }}</td>
+                <td>{{ line['date'] }}</td>
+                <td>{{ line['visitors'] }}</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
-        <h1>dqwdfqw</h1>
     </div>
 </div>
 

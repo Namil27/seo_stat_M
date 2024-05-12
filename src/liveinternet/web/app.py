@@ -1,4 +1,5 @@
 import json
+import requests
 
 from tools.sidebar_placeholder_generator import sites as sidebar_placeholder
 
@@ -42,7 +43,8 @@ def main_view(value):
                            site=value,
                            chart_data=json_data,
                            table_data=table_data,
-                           left_table=sidebar)
+                           left_table=sidebar,
+                           search_text=search)
 
 
 @app.after_request

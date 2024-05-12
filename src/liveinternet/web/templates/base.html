@@ -100,7 +100,7 @@
 
 <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
     <form class="col-md-3 col-lg-2 me-0 fs-6 text-white" role="search" method="GET">
-        <input type="site" class="form-control rounded-0" placeholder="site.com" name="search" value="{{ search }}"
+        <input type="site" class="form-control rounded-0" placeholder="site.com" name="search" value="{{ search_text }}"
                control-id="ControlID-1">
     </form>
     <a class="w-100 navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">🌐 LiveInternet Stats</a>
@@ -213,26 +213,28 @@
                 </table>
             </div>
             <script>
-        // Функция для сохранения позиции скролла
-        function saveScrollPosition() {
-            const sidebar = document.getElementById('sidebarMenu');
-            sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop);
-        }
+// Функция для сохранения позиции скролла
+function saveScrollPosition() {
+    const sidebar = document.getElementById('sidebarMenu');
+    sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop);
+}
 
-        // Функция для восстановления позиции скролла
-        function loadScrollPosition() {
-            const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
-            if (savedPosition) {
-                const sidebar = document.getElementById('sidebarMenu');
-                sidebar.scrollTop = savedPosition;
-                sidebar.style.visibility = 'visible'; // Сайдбар становится видимым только после установки скролла
-            }
-        }
-        // Событие прокрутки для сохранения позиции скролла
-        document.getElementById('sidebarMenu').addEventListener('scroll', saveScrollPosition);
+// Функция для восстановления позиции скролла
+function loadScrollPosition() {
+    const sidebar = document.getElementById('sidebarMenu');
+    const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
+    if (savedPosition) {
+        sidebar.scrollTop = 90;
+    }
+    sidebar.style.visibility = 'visible'; // Сделать сайдбар видимым независимо от наличия сохранённой позиции
+}
 
-        // Загрузка сохраненной позиции скролла при загрузке страницы
-        window.onload = loadScrollPosition;
+// Событие прокрутки для сохранения позиции скролла
+document.getElementById('sidebarMenu').addEventListener('scroll', saveScrollPosition);
+
+// Загрузка сохраненной позиции скролла при загрузке страницы
+window.onload = loadScrollPosition;
+
     </script>
         </div>
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">

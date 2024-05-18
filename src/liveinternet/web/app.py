@@ -48,10 +48,7 @@ def main_view(value):
             visitors = '-'
         line = {'index': index, 'date': date, 'visitors': visitors}
         table_api_data.append(line)
-    print(table_api_data)
     chart_api_data = {key[5:]: value for key, value in api_data.items() if value is not None}
-    print(api_data)
-    print(chart_api_data)
     json_data = json.dumps(api_data)
 
     return render_template(template_name_or_list='main.html',

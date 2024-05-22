@@ -64,7 +64,7 @@ def start():
     """
     search = request.args.get('search')
     return render_template(template_name_or_list='main.html',
-                           left_table=sidebar_gen(search))
+                           left_table=sidebar_gen(search), search_text=search)
 
 
 @app.route('/content/<site>')

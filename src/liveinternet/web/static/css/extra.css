@@ -1,4 +1,6 @@
-body {
+/* extra.css */
+
+html, body {
     height: 100%;
     overflow: hidden;
 }
@@ -8,10 +10,32 @@ body {
 }
 
 main {
-    height: 100%;
-    overflow: scroll;
+    height: calc(100vh - 56px); /* Учитываем высоту фиксированного хедера */
+    overflow: auto;
 }
 
+.sidebar-scroll {
+    max-height: calc(100vh - 56px); /* Максимальная высота с учетом высоты хедера */
+    overflow-y: auto; /* Добавляет вертикальную прокрутку, если содержимое превышает высоту */
+    overflow-x: hidden;
+    scrollbar-width: none; /* Для Firefox */
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    main {
+        padding-top: 0; /* Убираем отступ на мобильных устройствах */
+        height: 100vh;
+    }
+
+    .header-space {
+        display: none; /* Убираем дополнительное пространство на мобильных устройствах */
+    }
+
+    .sidebar-scroll {
+        max-height: 100vh; /* Максимальная высота экрана */
+    }
+}
 
 .table-text-grey {
     color: #6c757d;
@@ -33,19 +57,19 @@ main {
 .btn-extra:focus-visible {
     color: #6c757d;
     background-color: transparent;
-    box-shadow: None;
+    box-shadow: none;
 }
 
 .btn-extra:hover {
     color: #6c757d;
     background-color: transparent;
-    box-shadow: None;
+    box-shadow: none;
 }
 
 .btn-extra-check:checked + .btn-extra, .btn-extra.active, .btn-extra.show, .btn-extra:first-child:active, :not(.btn-extra-check) + .btn-extra:active {
     color: #6c757d;
     background-color: transparent;
-    box-shadow: None;
+    box-shadow: none;
 }
 
 .bd-placeholder-img {
@@ -124,8 +148,17 @@ main {
     display: block !important;
 }
 
-.truncate-180 {
-    width: 180px; /* Ширина блока, адаптируйте под свои нужды */
+.sidebar-button {
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    color: #007bff;
+    cursor: pointer;
+}
+
+.truncate-140 {
+    width: 140px; /* Ширина блока, адаптируйте под свои нужды */
     white-space: nowrap; /* Убедитесь, что текст идет в одну строку */
     overflow: hidden; /* Скрыть текст, выходящий за границы блока */
     text-overflow: ellipsis; /* Добавить многоточие в конце текста */
@@ -141,15 +174,3 @@ main {
 .hidden {
     display: none;
 }
-
-.sidebar-scroll {
-    max-height: 100vh; /* Максимальная высота равна высоте видимой части экрана */
-    overflow-y: auto; /* Добавляет вертикальную прокрутку, если содержимое превышает высоту */
-    scrollbar-width: none; /* Для Firefox */
-}
-
-/* Для Webkit-браузеров, таких как Chrome, Safari, и новых версий Edge */
-.sidebar-scroll::-webkit-scrollbar {
-    display: none; /* Скрывает скроллбар */
-}
-

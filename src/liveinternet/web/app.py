@@ -1,12 +1,25 @@
-import json
 import requests
 
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
 
 def sidebar_gen(search=''):
+    """
+    Генерирует список словарей, содержащих рейтинг, ссылку и количество посетителей для каждого медиа-сайта,
+    основываясь на данных, полученных из внешнего API. Функция также поддерживает фильтрацию по поисковому запросу.
+
+    Аргументы:
+        search (str): Подстрока для фильтрации медиа-ссылок. Будут включены только ссылки, содержащие эту подстроку.
+                      По умолчанию - пустая строка, что включает все ссылки.
+
+    Возвращает:
+        list: Список словарей, где каждый словарь содержит следующие ключи:
+            - 'rank' (int): Рейтинг медиа-сайта, основанный на порядке в ответе API.
+            - 'link' (str): Ссылка на медиа-сайт.
+            - 'visitors' (str): Форматированное количество посетителей или '. . .', если количество посетителей недоступно.
+    """
     api_rating = requests.get('http://23.111.123.4:8000/medias').json()
 
     lines = []
@@ -22,69 +35,85 @@ def sidebar_gen(search=''):
         sidebar = [i for i in lines if search in i['link']]
     else:
         sidebar = lines
-        search = ''
+
     return sidebar
 
 
 @app.route('/')
 def start():
+    """
+    Обрабатывает запрос на главную страницу, рендерит шаблон main.html и передает данные для боковой панели.
+
+    Если в запросе присутствует параметр поиска, фильтрует данные боковой панели по этому параметру.
+
+    Аргументы:
+        search (str): Параметр запроса, используемый для фильтрации данных боковой панели. Если отсутствует, отображает все данные.
+
+    Возвращает:
+        Response: Отрендеренный шаблон main.html с переданными данными для боковой панели.
+
+    Пример запроса:
+        GET /?search=example
+
+    Пример использования:
+        - Пользователь открывает главную страницу и видит данные боковой панели.
+        - Пользователь вводит параметр поиска в URL для фильтрации данных боковой панели.
+
+    Примечания:
+        - Функция использует функцию sidebar_gen для генерации данных боковой панели.
+    """
     search = request.args.get('search')
     return render_template(template_name_or_list='main.html',
                            left_table=sidebar_gen(search))
 
 
-@app.route('/chart/<path:value>')
-def main_view(value):
-    lines = sidebar_gen()
-    search = request.args.get('search')
-
-    if value not in [i['link'] for i in lines]:
-        return render_template(template_name_or_list='not_found.html',
-                               site=value,
-                               left_table=sidebar,
-                               search_text=search)
-
-    api_data = requests.get('http://23.111.123.4:8000/data/' + value).json()
-    table_api_data = []
-    for index, date in enumerate(api_data, start=1):
-        if api_data[date]:
-            visitors = format(int(api_data[date]), ',').replace(',', ' ')
-        else:
-            visitors = '-'
-        line = {'index': index, 'date': date, 'visitors': visitors}
-        table_api_data.append(line)
-    chart_api_data = {key[5:]: value for key, value in api_data.items() if value is not None}
-    json_data = json.dumps(api_data)
-
-    return render_template(template_name_or_list='main.html',
-                           site=value,
-                           chart_data=json.dumps(chart_api_data),
-                           table_data=table_api_data,
-                           left_table=sidebar,
-                           search_text=search)
-
-
 @app.route('/content/<site>')
 def content(site):
-    api_url = 'http://23.111.123.4:8000/data/' + site
-    if not api_url:
-        return jsonify({'error': 'Page not found!'}), 404
+    """
+    Возвращает данные о посещаемости для указанного сайта, полученные из внешнего API.
+
+    Аргументы:
+        site (str): Название сайта для получения данных о посещаемости.
+
+    Возвращает:
+        JSON: Объект JSON, содержащий данные о посещаемости сайта в формате:
+            {
+                "content": {
+                    "дата1": значение1,
+                    "дата2": значение2,
+                    ...
+                }
+            }
+            Если запрос к внешнему API завершился ошибкой, возвращается объект JSON с ключом "error" и сообщением об ошибке.
+
+    HTTP-статус:
+        200 OK: Успешный запрос и получение данных.
+        500 Internal Server Error: Ошибка при запросе к внешнему API.
+
+    Примеры:
+        Успешный запрос:
+        {
+            "content": {
+                "2024-05-10": 3111925,
+                "2024-05-11": 3410835,
+                ...
+            }
+        }
+
+        Ошибка запроса:
+        {
+            "error": "Ошибка соединения"
+        }
+    """
+    api_url = f'http://23.111.123.4:8000/data/{site}'
+
     try:
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
-        # data = {key:value for (key, value) in data.items() if value}
         return jsonify({'content': data})
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500
-
-
-@app.after_request
-def add_header(response):
-    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-    response.headers['Cache-Control'] = 'public, max-age=0'
-
-    return response
 
 
 if __name__ == '__main__':

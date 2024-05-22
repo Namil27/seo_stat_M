@@ -1,21 +1,18 @@
 import json
 import requests
 
-from tools.sidebar_placeholder_generator import sites as sidebar_placeholder
-
 from flask import Flask, render_template, request, redirect
-import sqlite3
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def start():
-    return render_template('start.html', left_table=sidebar_placeholder)
+    return render_template(template_name_or_list='start.html',
+                           left_table=sidebar_gen())
 
 
-@app.route('/chart/<path:value>')
-def main_view(value):
+def sidebar_gen():
     api_rating = requests.get('http://23.111.123.4:8000/medias').json()
     lines = []
     for rank, link in enumerate(api_rating, start=1):
@@ -25,7 +22,12 @@ def main_view(value):
             visitors = '. . .'
         line = {'rank': rank, 'link': link, 'visitors': visitors}
         lines.append(line)
+    return lines
 
+
+@app.route('/chart/<path:value>')
+def main_view(value):
+    lines = sidebar_gen()
     search = request.args.get('search')
     if search:
         sidebar = [i for i in lines if search in i['link']]

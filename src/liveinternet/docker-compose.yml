@@ -62,7 +62,7 @@ services:
     volumes:
       - ./web:/app
     depends_on:
-      - liveinternet_api
+      - fastapiapp
     command: flask run --host=0.0.0.0
 
 

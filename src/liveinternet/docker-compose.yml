@@ -51,6 +51,18 @@ services:
       DB_NAME: liveinternet
     command: ["/bin/bash", "/app/start.sh"]
 
+  flaskapp:
+    build: ./web
+    container_name: liveinternet_web
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: app.py
+    volumes:
+      - ./web:/app
+    command: flask run --host=0.0.0.0
+
 
 volumes:
   db:

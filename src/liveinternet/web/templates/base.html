@@ -16,10 +16,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
 
     <link href="{{ url_for('static', filename='/assets/dist/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='extra.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='/css/extra.css') }}" rel="stylesheet">
 
 
-    <link href="{{ url_for('static', filename='dashboard.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='/css/dashboard.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='/css/bootstrap-datepicker.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='/css/bootstrap-datepicker.standalone.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='/css/bootstrap-datepicker3.css') }}" rel="stylesheet">
@@ -163,6 +163,7 @@
         </main>
     </div>
 </div>
+
 <script src="{{ url_for('static', filename='/assets/dist/js/bootstrap.bundle.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js"
         integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp"
@@ -172,7 +173,7 @@
 <script src="{{ url_for('static', filename='/js/bootstrap-datepicker.js') }}"></script>
 <script src="{{ url_for('static', filename='/locales/bootstrap-datepicker.ru.min.js') }}"></script>
 
-<script src="{{ url_for('static', filename='ajax.js') }}"></script>
+<script src="{{ url_for('static', filename='/js/ajax.js') }}"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -212,10 +213,7 @@
         }
     });
 </script>
-
-
 <script src="{{ url_for('static', filename='/dataTables.js') }}"></script>
 <script src="{{ url_for('static', filename='/dataTables.bootstrap5.js') }}"></script>
-<script>new DataTable('#example');</script>
 </body>
 </html>

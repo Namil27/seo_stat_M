@@ -61,6 +61,8 @@ services:
       FLASK_APP: app.py
     volumes:
       - ./web:/app
+    depends_on:
+      - liveinternet_api
     command: flask run --host=0.0.0.0
 
 

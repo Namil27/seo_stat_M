@@ -157,7 +157,7 @@ main {
     cursor: pointer;
 }
 
-.truncate-180 {
+.truncate-140 {
     width: 140px; /* Ширина блока, адаптируйте под свои нужды */
     white-space: nowrap; /* Убедитесь, что текст идет в одну строку */
     overflow: hidden; /* Скрыть текст, выходящий за границы блока */

@@ -48,11 +48,15 @@
         <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
         <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
     </symbol>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+         viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+    </svg>
 </svg>
 
 <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
     <form class="col-md-3 col-lg-2 me-0 fs-6 text-white" role="search" method="GET">
-        <input type="site" class="form-control rounded-0" placeholder="site.com" name="search" value="{{ search_text }}"
+        <input type="site" class="form-control rounded-0" placeholder="Поиск СМИ" name="search" value="{{ search_text }}"
                control-id="ControlID-1">
     </form>
     <a class="w-100 navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">🌐 LiveInternet Stats</a>
@@ -147,14 +151,15 @@
                             <div class="table-text-grey">{{ line['rank'] }}</div>
                         </td>
                         <td>
-                            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                               href="/chart/{{ line['link'] }}">
+                            <button class="sidebar-button link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                                    data-section="{{ line['link'] }}">
                                 <div class="truncate-180">
                                     <img src="https://www.liveinternet.ru/favicon/{{ line['link'] }}.ico" width="16"
                                          height="16" border="0">
                                     {{ line['link'] }}
                                 </div>
-                            </a>
+                            </button>
+
                         </td>
                         <td class="text-end">
                             <div class="table-text-grey truncate-80">{{ line['visitors'] }}</div>
@@ -180,55 +185,47 @@
 <script src="{{ url_for('static', filename='/js/bootstrap-datepicker.js') }}"></script>
 <script src="{{ url_for('static', filename='/locales/bootstrap-datepicker.ru.min.js') }}"></script>
 
+<script src="{{ url_for('static', filename='ajax.js') }}"></script>
+
 <script>
-    $('.input-daterange').datepicker({
-        format: "dd.mm.yyyy",
-        todayBtn: "linked",
-        language: "ru",
-        todayHighlight: true,
-        datesDisabled: ['04/06/2024', '04/21/2024']
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const site = localStorage.getItem('selectedSite');
+        if (site) {
+            fetch(`/content/${site}`)
+                .then(response => response.json())
+                .then(data => {
+                    const availableDates = Object.keys(data.content).map(date => {
+                        const [year, month, day] = date.split('-');
+                        return new Date(year, month - 1, day);
+                    });
+
+                    availableDates.sort((a, b) => a - b); // Сортируем даты
+
+                    // Устанавливаем первую и последнюю даты
+                    const firstDate = availableDates[0];
+                    const lastDate = availableDates[availableDates.length - 1];
+
+                    startDateInput.value = `${firstDate.getFullYear()}-${String(firstDate.getMonth() + 1).padStart(2, '0')}-${String(firstDate.getDate()).padStart(2, '0')}`;
+                    endDateInput.value = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
+
+                    $('.input-daterange').datepicker({
+                        format: "yyyy-mm-dd",
+                        language: "ru",
+                        todayHighlight: true,
+                        beforeShowDay: function (date) {
+                            const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                            const isAvailable = availableDates.some(availableDate =>
+                                availableDate.getTime() === formattedDate.getTime());
+                            return isAvailable ? {enabled: true} : {enabled: false, classes: 'disabled-date'};
+                        }
+                    });
+                });
+        }
     });
 </script>
 
-<script>
-    /* globals Chart:false */
-
-    (() => {
-        'use strict'
-
-        // Graphs
-        const ctx = document.getElementById('myChart')
-        const dataFromPython = JSON.parse('{{ chart_data | safe}}'); // Получаем данные из Flask
-
-        const labels = Object.keys(dataFromPython); // Получаем ключи словаря как метки
-        const values = Object.values(dataFromPython); // Получаем значения словаря как данные графика
-
-        const myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    lineTension: 0,
-                    backgroundColor: 'transparent',
-                    borderColor: '#007bff',
-                    borderWidth: 4,
-                    pointBackgroundColor: '#007bff'
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        boxPadding: 3
-                    }
-                }
-            }
-        })
-    })()
-</script>
 
 <script src="{{ url_for('static', filename='/dataTables.js') }}"></script>
 <script src="{{ url_for('static', filename='/dataTables.bootstrap5.js') }}"></script>

@@ -1,19 +1,14 @@
 import json
 import requests
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 
 app = Flask(__name__)
 
 
-@app.route('/')
-def start():
-    return render_template(template_name_or_list='start.html',
-                           left_table=sidebar_gen())
-
-
-def sidebar_gen():
+def sidebar_gen(search=''):
     api_rating = requests.get('http://23.111.123.4:8000/medias').json()
+
     lines = []
     for rank, link in enumerate(api_rating, start=1):
         if api_rating[link]:
@@ -22,18 +17,26 @@ def sidebar_gen():
             visitors = '. . .'
         line = {'rank': rank, 'link': link, 'visitors': visitors}
         lines.append(line)
-    return lines
+
+    if search:
+        sidebar = [i for i in lines if search in i['link']]
+    else:
+        sidebar = lines
+        search = ''
+    return sidebar
+
+
+@app.route('/')
+def start():
+    search = request.args.get('search')
+    return render_template(template_name_or_list='main.html',
+                           left_table=sidebar_gen(search))
 
 
 @app.route('/chart/<path:value>')
 def main_view(value):
     lines = sidebar_gen()
     search = request.args.get('search')
-    if search:
-        sidebar = [i for i in lines if search in i['link']]
-    else:
-        sidebar = lines
-        search = ''
 
     if value not in [i['link'] for i in lines]:
         return render_template(template_name_or_list='not_found.html',
@@ -59,6 +62,21 @@ def main_view(value):
                            table_data=table_api_data,
                            left_table=sidebar,
                            search_text=search)
+
+
+@app.route('/content/<site>')
+def content(site):
+    api_url = 'http://23.111.123.4:8000/data/' + site
+    if not api_url:
+        return jsonify({'error': 'Page not found!'}), 404
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        data = response.json()
+        # data = {key:value for (key, value) in data.items() if value}
+        return jsonify({'content': data})
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.after_request

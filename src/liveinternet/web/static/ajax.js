@@ -66,37 +66,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         visitors: data.content[date] !== null ? data.content[date] : null // Используем null для пропуска пустых точек
                     }));
                     currentSite = site;
-                    setInitialDates(currentData);
                     updateChartAndTable(currentData, site);
                 }
             })
             .catch(error => {
                 mainContent.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
             });
-    }
-
-    function setInitialDates(data) {
-        const availableDates = data.map(item => new Date(item.date));
-        availableDates.sort((a, b) => a - b);
-
-        const firstDate = availableDates[0];
-        const lastDate = availableDates[availableDates.length - 1];
-
-        startDateInput.value = `${firstDate.getFullYear()}.${String(firstDate.getMonth() + 1).padStart(2, '0')}.${String(firstDate.getDate()).padStart(2, '0')}`;
-        endDateInput.value = `${lastDate.getFullYear()}.${String(lastDate.getMonth() + 1).padStart(2, '0')}.${String(lastDate.getDate()).padStart(2, '0')}`;
-
-        $('.input-daterange').datepicker({
-            format: "yyyy.mm.dd",
-            todayBtn: "linked",
-            language: "ru",
-            todayHighlight: true,
-            beforeShowDay: function(date) {
-                const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                const isAvailable = availableDates.some(availableDate =>
-                    availableDate.getTime() === formattedDate.getTime());
-                return isAvailable ? { enabled: true } : { enabled: false, classes: 'disabled-date' };
-            }
-        });
     }
 
     function updateChartAndTable(data, site) {

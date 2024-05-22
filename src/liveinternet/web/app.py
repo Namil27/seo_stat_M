@@ -63,6 +63,8 @@ def start():
         - Функция использует функцию sidebar_gen для генерации данных боковой панели.
     """
     search = request.args.get('search')
+    if not search:
+        search = ''
     return render_template(template_name_or_list='main.html',
                            left_table=sidebar_gen(search), search_text=search)
 

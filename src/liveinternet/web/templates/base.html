@@ -49,24 +49,26 @@
         <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
     </symbol>
     <symbol id="list" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+        <path fill-rule="evenodd"
+              d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
     </symbol>
 </svg>
 
 <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
     <form class="col-md-3 col-lg-2 me-0 fs-6 text-white d-none d-md-block" role="search" method="GET">
-        <input type="site" class="form-control rounded-0" placeholder="Поиск СМИ" name="search"
-               value="{{ search_text }}"
-               control-id="ControlID-1">
+        <input type="text" class="form-control rounded-0" placeholder="Поиск СМИ" id="search-input" name="search">
     </form>
-    <a class="w-100 navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">🌐 LiveInternet Stats</a>
-    <button class="nav-link px-3 text-white d-md-none" type="button" data-bs-toggle="offcanvas"
+    <div class="w-100 navbar-brand container-fluid col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">
+        <a>🌐 LiveInternet Stats</a>
+        <button class="nav-link px-3 text-white d-md-none" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
             aria-label="Toggle navigation">
         <svg class="bi">
             <use xlink:href="#list"/>
         </svg>
     </button>
+    </div>
+
     <div class="dropdown position-fixed end-0 mb-0 p-2 bd-mode-toggle d-none d-md-block">
         <button class="btn py-2 dropdown-toggle d-flex align-items-center"
                 id="bd-theme"
@@ -130,31 +132,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"
                             aria-label="Close"></button>
                 </div>
-                <table class="table-extra noBorder table table-sm">
-                    <tbody>
-                    {% for line in left_table %}
-                    <tr class="">
-                        <td class="text-end">
-                            <div class="table-text-grey">{{ line['rank'] }}</div>
-                        </td>
-                        <td>
-                            <button class="sidebar-button link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                                    data-section="{{ line['link'] }}">
-                                <div class="truncate-140">
-                                    <img src="https://www.liveinternet.ru/favicon/{{ line['link'] }}.ico" width="16"
-                                         height="16" border="0">
-                                    {{ line['link'] }}
-                                </div>
-                            </button>
-
-                        </td>
-                        <td class="text-end">
-                            <div class="table-text-grey truncate-80">{{ line['visitors'] }}</div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                <div id="search-results"></div>
             </div>
         </div>
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -201,7 +179,6 @@
                     $('.input-daterange').datepicker({
                         format: "yyyy-mm-dd",
                         language: "ru",
-                        todayHighlight: true,
                         beforeShowDay: function (date) {
                             const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
                             const isAvailable = availableDates.some(availableDate =>

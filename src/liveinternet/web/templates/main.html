@@ -21,7 +21,7 @@
                     <input type="text" id="start-date"
                            class="input-sm form-select btn btn-sm btn-outline-secondary btn-extra" name="start"
                            placeholder=">"/>
-                    <button type="button" class="btn btn-sm btn-outline-secondary btn-extra">
+                    <button type="button" class="btn btn-sm btn-outline-secondary btn-extra d-none d-md-block">
                         <svg class="bi">
                             <use xlink:href="#calendar3"/>
                         </svg>
@@ -68,16 +68,19 @@
 <script>
     function exportToCsv(tableId) {
         var csv = [];
-        var rows = document.querySelectorAll("#" + tableId + " tbody tr");
 
+        // Add the custom header row
+        var headers = ['"Индекс"', '"Дата"', '"Трафик"'];
+        csv.push(headers.join(","));
+
+        // Get the data rows
+        var rows = document.querySelectorAll("#" + tableId + " tbody tr");
         rows.forEach(function (row) {
             var rowData = [];
             var cols = row.querySelectorAll("td");
-
-            for (var i = 1; i < cols.length; i++) {
+            for (var i = 0; i < cols.length; i++) { // Start from 0 to include all columns
                 rowData.push('"' + cols[i].innerText.trim().replace(/"/g, '""') + '"');
             }
-
             csv.push(rowData.join(","));
         });
 
@@ -92,4 +95,7 @@
         document.body.removeChild(link);
     }
 </script>
+
+
+
 {% endblock %}

@@ -133,7 +133,7 @@
                 <table class="table-extra noBorder table table-sm">
                     <tbody>
                     {% for line in left_table %}
-                    <tr class="">
+                    <tr>
                         <td class="text-end">
                             <div class="table-text-grey">{{ line['rank'] }}</div>
                         </td>
@@ -201,7 +201,6 @@
                     $('.input-daterange').datepicker({
                         format: "yyyy-mm-dd",
                         language: "ru",
-                        todayHighlight: true,
                         beforeShowDay: function (date) {
                             const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
                             const isAvailable = availableDates.some(availableDate =>

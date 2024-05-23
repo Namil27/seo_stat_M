@@ -1,8 +1,30 @@
+import re
+
 import requests
 
 from flask import Flask, render_template, request, jsonify
+from unidecode import unidecode
 
 app = Flask(__name__)
+
+
+def normalize_text(text):
+    # Приведение текста к нижнему регистру и удаление специальных символов
+    normalized_text = unidecode(text).lower()
+    normalized_text = re.sub(r'\W+', '', normalized_text)
+    return normalized_text
+
+
+def find_similar_entries(data_list, search_word):
+    # Нормализация искомого слова
+    normalized_search_word = normalize_text(search_word)
+
+    # Поиск и вывод похожих словарей
+    similar_entries = [
+        entry for entry in data_list
+        if normalized_search_word in normalize_text(entry['link'])
+    ]
+    return similar_entries
 
 
 def sidebar_gen(search=''):
@@ -32,9 +54,12 @@ def sidebar_gen(search=''):
         lines.append(line)
 
     if search:
-        sidebar = [i for i in lines if search in i['link']]
+        sidebar = find_similar_entries(lines, search)
     else:
         sidebar = lines
+
+    if not sidebar:
+        sidebar = [{'rank': '', 'link': 'Упс... такого СМИ нет', 'visitors': ''}]
 
     return sidebar
 
@@ -119,4 +144,4 @@ def content(site):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(port=9999, debug=True)

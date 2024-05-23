@@ -127,7 +127,6 @@ main {
 .btn-bd-primary {
     --bd-violet-bg: #712cf9;
     --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
     --bs-btn-font-weight: 600;
     --bs-btn-color: var(--bs-white);
     --bs-btn-bg: var(--bd-violet-bg);
@@ -153,8 +152,16 @@ main {
     border: none;
     padding: 0;
     text-align: left;
-    color: #007bff;
     cursor: pointer;
+}
+
+.sidebar-button:hover {
+    transform: scale(0.95);
+}
+
+.sidebar-button:active {
+    color: #6c757d;
+    transform: scale(0.90);
 }
 
 .truncate-140 {
@@ -173,4 +180,14 @@ main {
 
 .hidden {
     display: none;
+}
+
+@media (max-width: 768px) {
+    .bebra {
+        width: 80%;
+    }
+
+    .btn-extra{
+
+    }
 }

@@ -143,5 +143,13 @@ def content(site):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').lower()
+    print(query)
+    results = find_similar_entries(sidebar_gen(), query)
+    return jsonify(results)
+
+
 if __name__ == '__main__':
-    app.run(port=9999, debug=True)
+    app.run(port=9999, debug=False)

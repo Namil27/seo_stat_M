@@ -1,51 +1,71 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const buttons = document.querySelectorAll('.sidebar-button');
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
     const applyButton = document.getElementById('apply-dates');
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
     const welcome = document.getElementById('welcome');
     const mainContent = document.getElementById('main-content');
     const chartCanvas = document.getElementById('myChart');
-    const tableContainer = document.querySelector('.table-responsive');
     let myChart;
     let currentData = [];
     let currentSite = '';
 
-    // Проверяем, есть ли сохраненный сайт в localStorage
-    const savedSite = localStorage.getItem('selectedSite');
-    if (savedSite) {
-        loadSite(savedSite);
-    } else {
-        // Если сохраненного сайта нет, показать блок приветствия
-        welcome.classList.remove('hidden');
+    function renderTable(data) {
+        searchResults.innerHTML = '';
+        const table = document.createElement('table');
+        table.classList.add('table-extra', 'noBorder', 'table', 'table-sm');
+        const tableBody = document.createElement('tbody');
+
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+
+            const rankTd = document.createElement('td');
+            rankTd.classList.add('text-end');
+            rankTd.innerHTML = `<div class="table-text-grey">${item.rank}</div>`;
+            tr.appendChild(rankTd);
+
+            const linkTd = document.createElement('td');
+            const button = document.createElement('button');
+            button.classList.add('sidebar-button', 'link-offset-2', 'link-offset-3-hover', 'link-underline', 'link-underline-opacity-0', 'link-underline-opacity-75-hover');
+            button.setAttribute('data-section', item.link);
+            button.innerHTML = `<div class="truncate-140">
+                                    <img src="https://www.liveinternet.ru/favicon/${item.link}.ico" width="16" height="16" border="0">
+                                    ${item.link}
+                                </div>`;
+            linkTd.appendChild(button);
+            tr.appendChild(linkTd);
+
+            const visitorsTd = document.createElement('td');
+            visitorsTd.classList.add('text-end');
+            visitorsTd.innerHTML = `<div class="table-text-grey truncate-80">${item.visitors}</div>`;
+            tr.appendChild(visitorsTd);
+
+            tableBody.appendChild(tr);
+        });
+        table.appendChild(tableBody);
+        searchResults.appendChild(table);
+
+        // После обновления результатов поиска заново инициализируем обработчики событий
+        initializeButtonHandlers();
     }
 
-    buttons.forEach(button => {
-        button.addEventListener('click', function () {
-            const site = this.getAttribute('data-section');
-            localStorage.setItem('selectedSite', site); // Сохраняем сайт в localStorage
-            loadSite(site);
-        });
-    });
+    function performSearch(query) {
+        fetch(`/search?q=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                renderTable(data);
+            });
+    }
 
-    applyButton.addEventListener('click', function () {
-        console.log('Apply button clicked');
-        const startDate = new Date(startDateInput.value);
-        const endDate = new Date(endDateInput.value);
-
-        if (!isNaN(startDate) && !isNaN(endDate)) {
-            console.log('Valid dates selected');
-            const filteredData = filterDataByDate(currentData, startDate, endDate);
-            updateChartAndTable(filteredData, currentSite);
-        } else {
-            console.log('Invalid date range');
-        }
-    });
-
-    function filterDataByDate(data, startDate, endDate) {
-        return data.filter(item => {
-            const itemDate = new Date(item.date);
-            return itemDate >= startDate && itemDate <= endDate;
+    function initializeButtonHandlers() {
+        const buttons = document.querySelectorAll('.sidebar-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                const site = this.getAttribute('data-section');
+                localStorage.setItem('selectedSite', site); // Сохраняем сайт в localStorage
+                loadSite(site);
+            });
         });
     }
 
@@ -89,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const values = trimmedData.map(item => item.visitors !== null ? item.visitors : NaN); // Используем NaN для пропуска пустых точек
 
         const siteTitle = document.getElementById('site-name');
-        siteTitle.innerHTML = `${site} <img src="https://www.liveinternet.ru/favicon/${site}.ico" width="24" height="24" border="0">`;
+        siteTitle.innerHTML = `<img src="https://www.liveinternet.ru/favicon/${site}.ico" width="24" height="24" border="0"> ${site}`;
 
         welcome.classList.add('hidden');
         mainContent.classList.remove('hidden');
@@ -105,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     label: 'Посещений',
                     data: values,
-                    lineTension: 0,
+                    lineTension: 0.33,
                     backgroundColor: 'transparent',
                     borderColor: '#007bff',
                     borderWidth: 4,
@@ -116,7 +136,8 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grace: '20%'
                     }
                 },
                 plugins: {
@@ -148,4 +169,37 @@ document.addEventListener('DOMContentLoaded', function () {
             tableBody.appendChild(tr);
         });
     }
+
+    function filterDataByDate(startDate, endDate) {
+        const filteredData = currentData.filter(item => {
+            const date = new Date(item.date);
+            return date >= new Date(startDate) && date <= new Date(endDate);
+        });
+        updateChartAndTable(filteredData, currentSite);
+    }
+
+    applyButton.addEventListener('click', function() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+        if (startDate && endDate) {
+            filterDataByDate(startDate, endDate);
+        } else {
+            alert('Пожалуйста, выберите обе даты.');
+        }
+    });
+
+    searchInput.addEventListener('input', function() {
+        const query = searchInput.value;
+        performSearch(query);
+    });
+
+    performSearch(''); // Выполните поиск с пустым запросом при загрузке страницы
+
+    const savedSite = localStorage.getItem('selectedSite');
+    if (savedSite) {
+        loadSite(savedSite);
+    } else {
+        welcome.classList.remove('hidden');
+    }
+    initializeButtonHandlers(); // Инициализируем обработчики событий для кнопок
 });

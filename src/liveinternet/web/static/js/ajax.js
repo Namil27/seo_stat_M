@@ -1,15 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
-    const applyButton = document.getElementById('apply-dates');
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
     const welcome = document.getElementById('welcome');
     const mainContent = document.getElementById('main-content');
     const chartCanvas = document.getElementById('myChart');
+    const sidebarMenu = document.getElementById('sidebarMenu');
     let myChart;
     let currentData = [];
     let currentSite = '';
+
+    // Инициализация оффканвас меню
+    const offcanvas = new bootstrap.Offcanvas(sidebarMenu);
 
     function renderTable(data) {
         searchResults.innerHTML = '';
@@ -44,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tableBody.appendChild(tr);
         });
         table.appendChild(tableBody);
+        table.appendChild(tableBody);
         searchResults.appendChild(table);
 
         // После обновления результатов поиска заново инициализируем обработчики событий
@@ -65,6 +69,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const site = this.getAttribute('data-section');
                 localStorage.setItem('selectedSite', site); // Сохраняем сайт в localStorage
                 loadSite(site);
+
+                // Закрываем сайдбар на мобильных устройствах
+                offcanvas.hide();
             });
         });
     }
@@ -86,6 +93,42 @@ document.addEventListener('DOMContentLoaded', function () {
                         visitors: data.content[date] !== null ? data.content[date] : null // Используем null для пропуска пустых точек
                     }));
                     currentSite = site;
+
+                    // Инициализация datepicker с доступными датами
+                    const availableDates = Object.keys(data.content).map(date => {
+                        const [year, month, day] = date.split('-');
+                        return new Date(year, month - 1, day);
+                    });
+
+                    availableDates.sort((a, b) => a - b); // Сортируем даты
+
+                    // Устанавливаем первую и последнюю даты
+                    const firstDate = availableDates[0];
+                    const lastDate = availableDates[availableDates.length - 1];
+
+                    startDateInput.value = `${firstDate.getFullYear()}-${String(firstDate.getMonth() + 1).padStart(2, '0')}-${String(firstDate.getDate()).padStart(2, '0')}`;
+                    endDateInput.value = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
+
+                    $('.input-daterange').datepicker('destroy'); // Удаляем предыдущий datepicker
+                    $('.input-daterange').datepicker({
+                        format: "yyyy-mm-dd",
+                        language: "ru",
+                        autoclose: true,
+                        todayHighlight: true,
+                        beforeShowDay: function (date) {
+                            const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                            const isAvailable = availableDates.some(availableDate =>
+                                availableDate.getTime() === formattedDate.getTime());
+                            return isAvailable ? {enabled: true} : {enabled: false, classes: 'disabled-date'};
+                        }
+                    }).on('changeDate', function () {
+                        const startDate = startDateInput.value;
+                        const endDate = endDateInput.value;
+                        if (startDate && endDate) {
+                            filterDataByDate(startDate, endDate);
+                        }
+                    });
+
                     updateChartAndTable(currentData, site);
                 }
             })
@@ -105,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const ctx = chartCanvas.getContext('2d');
-        const labels = trimmedData.map(item => item.date);
+        const labels = trimmedData.map(item => item.date.slice(5));
         const values = trimmedData.map(item => item.visitors !== null ? item.visitors : NaN); // Используем NaN для пропуска пустых точек
 
         const siteTitle = document.getElementById('site-name');
@@ -117,7 +160,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (myChart) {
             myChart.destroy();
         }
-
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -137,7 +179,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grace: '20%'
+                        grace: '20%',
+                        ticks: {
+                            callback: function (value) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'm'; // Миллионы
+                                } else if (value >= 1000) {
+                                    return (value / 1000) + 'k'; // Тысячи
+                                }
+                                return value;
+                            }
+                        }
                     }
                 },
                 plugins: {
@@ -152,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Обновляем таблицу с исходными данными
-        updateTable(data);
+        updateTable(data.reverse());
     }
 
     function updateTable(data) {
@@ -175,20 +227,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const date = new Date(item.date);
             return date >= new Date(startDate) && date <= new Date(endDate);
         });
-        updateChartAndTable(filteredData, currentSite);
+        updateChartAndTable(filteredData.reverse(), currentSite);
     }
 
-    applyButton.addEventListener('click', function() {
-        const startDate = startDateInput.value;
-        const endDate = endDateInput.value;
-        if (startDate && endDate) {
-            filterDataByDate(startDate, endDate);
-        } else {
-            alert('Пожалуйста, выберите обе даты.');
-        }
-    });
-
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         const query = searchInput.value;
         performSearch(query);
     });

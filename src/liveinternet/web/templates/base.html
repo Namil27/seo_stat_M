@@ -3,7 +3,8 @@
 <head>
     <script src="{{ url_for('static', filename='/assets/js/color-modes.js') }}"></script>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
@@ -152,44 +153,6 @@
 <script src="{{ url_for('static', filename='/locales/bootstrap-datepicker.ru.min.js') }}"></script>
 
 <script src="{{ url_for('static', filename='/js/ajax.js') }}"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const site = localStorage.getItem('selectedSite');
-        if (site) {
-            fetch(`/content/${site}`)
-                .then(response => response.json())
-                .then(data => {
-                    const availableDates = Object.keys(data.content).map(date => {
-                        const [year, month, day] = date.split('-');
-                        return new Date(year, month - 1, day);
-                    });
-
-                    availableDates.sort((a, b) => a - b); // Сортируем даты
-
-                    // Устанавливаем первую и последнюю даты
-                    const firstDate = availableDates[0];
-                    const lastDate = availableDates[availableDates.length - 1];
-
-                    startDateInput.value = `${firstDate.getFullYear()}-${String(firstDate.getMonth() + 1).padStart(2, '0')}-${String(firstDate.getDate()).padStart(2, '0')}`;
-                    endDateInput.value = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-
-                    $('.input-daterange').datepicker({
-                        format: "yyyy-mm-dd",
-                        language: "ru",
-                        beforeShowDay: function (date) {
-                            const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                            const isAvailable = availableDates.some(availableDate =>
-                                availableDate.getTime() === formattedDate.getTime());
-                            return isAvailable ? {enabled: true} : {enabled: false, classes: 'disabled-date'};
-                        }
-                    });
-                });
-        }
-    });
-</script>
 <script src="{{ url_for('static', filename='/dataTables.js') }}"></script>
 <script src="{{ url_for('static', filename='/dataTables.bootstrap5.js') }}"></script>
 </body>

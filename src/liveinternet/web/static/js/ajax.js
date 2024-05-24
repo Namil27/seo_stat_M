@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (myChart) {
             myChart.destroy();
         }
-
+        // console.log(labels.reverse())
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Обновляем таблицу с исходными данными
-        updateTable(data);
+        updateTable(data.reverse());
     }
 
     function updateTable(data) {
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const date = new Date(item.date);
             return date >= new Date(startDate) && date <= new Date(endDate);
         });
-        updateChartAndTable(filteredData, currentSite);
+        updateChartAndTable(filteredData.reverse(), currentSite);
     }
 
     applyButton.addEventListener('click', function() {

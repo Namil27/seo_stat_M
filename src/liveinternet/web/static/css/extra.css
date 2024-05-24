@@ -50,10 +50,6 @@ main {
     border: none !important;
 }
 
-.form-select {
-    color: #6c757d;
-}
-
 .btn-extra:focus-visible {
     color: #6c757d;
     background-color: transparent;
@@ -190,4 +186,18 @@ main {
     .btn-extra{
 
     }
+}
+
+/* extra.css */
+
+.input-daterange input[type="text"] {
+    width: 100px; /* Установите нужную ширину */
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+.input-daterange .btn {
+    padding: 0.25rem 0.5rem;
 }

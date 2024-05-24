@@ -153,46 +153,7 @@
 <script src="{{ url_for('static', filename='/locales/bootstrap-datepicker.ru.min.js') }}"></script>
 
 <script src="{{ url_for('static', filename='/js/ajax.js') }}"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const site = localStorage.getItem('selectedSite');
-        if (site) {
-            fetch(`/content/${site}`)
-                .then(response => response.json())
-                .then(data => {
-                    const availableDates = Object.keys(data.content).map(date => {
-                        const [year, month, day] = date.split('-');
-                        return new Date(year, month - 1, day);
-                    });
-
-                    availableDates.sort((a, b) => a - b); // Сортируем даты
-
-                    // Устанавливаем первую и последнюю даты
-                    const firstDate = availableDates[0];
-                    const lastDate = availableDates[availableDates.length - 1];
-
-                    startDateInput.value = `${firstDate.getFullYear()}-${String(firstDate.getMonth() + 1).padStart(2, '0')}-${String(firstDate.getDate()).padStart(2, '0')}`;
-                    endDateInput.value = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-
-                    $('.input-daterange').datepicker({
-                        format: "yyyy-mm-dd",
-                        language: "ru",
-                        beforeShowDay: function (date) {
-                            const formattedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                            const isAvailable = availableDates.some(availableDate =>
-                                availableDate.getTime() === formattedDate.getTime());
-                            return isAvailable ? {enabled: true} : {enabled: false, classes: 'disabled-date'};
-                        }
-                    });
-                });
-        }
-    });
-</script>
 <script src="{{ url_for('static', filename='/dataTables.js') }}"></script>
 <script src="{{ url_for('static', filename='/dataTables.bootstrap5.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

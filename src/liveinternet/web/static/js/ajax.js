@@ -6,9 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const welcome = document.getElementById('welcome');
     const mainContent = document.getElementById('main-content');
     const chartCanvas = document.getElementById('myChart');
+    const sidebarMenu = document.getElementById('sidebarMenu');
     let myChart;
     let currentData = [];
     let currentSite = '';
+
+    // Инициализация оффканвас меню
+    const offcanvas = new bootstrap.Offcanvas(sidebarMenu);
 
     function renderTable(data) {
         searchResults.innerHTML = '';
@@ -43,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tableBody.appendChild(tr);
         });
         table.appendChild(tableBody);
+        table.appendChild(tableBody);
         searchResults.appendChild(table);
 
         // После обновления результатов поиска заново инициализируем обработчики событий
@@ -64,6 +69,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const site = this.getAttribute('data-section');
                 localStorage.setItem('selectedSite', site); // Сохраняем сайт в localStorage
                 loadSite(site);
+
+                // Закрываем сайдбар на мобильных устройствах
+                offcanvas.hide();
             });
         });
     }
@@ -237,4 +245,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     initializeButtonHandlers(); // Инициализируем обработчики событий для кнопок
 });
-

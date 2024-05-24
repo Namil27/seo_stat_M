@@ -182,10 +182,6 @@ main {
     .bebra {
         width: 80%;
     }
-
-    .btn-extra{
-
-    }
 }
 
 /* extra.css */
@@ -200,4 +196,24 @@ main {
 
 .input-daterange .btn {
     padding: 0.25rem 0.5rem;
+}
+
+/* Убираем затемнение при открытии оффканвас меню */
+.offcanvas-backdrop {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    main {
+        padding-top: 0; /* Убираем отступ на мобильных устройствах */
+        height: calc(100vh - env(safe-area-inset-bottom)); /* Высота экрана с учетом безопасной зоны */
+    }
+
+    .header-space {
+        display: none; /* Убираем дополнительное пространство на мобильных устройствах */
+    }
+
+    .sidebar-scroll {
+        max-height: calc(100vh - env(safe-area-inset-bottom)); /* Максимальная высота экрана с учетом безопасной зоны */
+    }
 }

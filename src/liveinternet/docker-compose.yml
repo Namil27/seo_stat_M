@@ -49,7 +49,7 @@ services:
       DB_USER: parser
       DB_PASSWORD: mega_hard_password_qwerty
       DB_NAME: liveinternet
-    command: ["/bin/bash", "/app/start.sh"]
+    command: [ "/bin/bash", "/app/start.sh" ]
 
   flaskapp:
     build: ./web
@@ -64,7 +64,19 @@ services:
     depends_on:
       - fastapiapp
     command: flask run --host=0.0.0.0
+    networks:
+      - webnet
 
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - flask
+    networks:
+      - webnet
 
 volumes:
   db:

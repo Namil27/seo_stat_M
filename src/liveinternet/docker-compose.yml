@@ -81,3 +81,7 @@ services:
 volumes:
   db:
   shared_data:
+
+networks:
+  webnet:
+    driver: bridge

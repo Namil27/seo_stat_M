@@ -28,34 +28,38 @@ def full_cycle():
     connection.close()
 
 
-# Выполняем код.
-try:
-    full_cycle()
-
-except Exception as e:
-    print('Error: ', e)
-
-finally:
-    # Повторно парсим, если в первый раз по какой-то причине что-то не с парсилось.
+def main():
     try:
         full_cycle()
+
     except Exception as e:
         print('Error: ', e)
+
     finally:
-        # Если и во второй раз по какой-то причине что-то не спарсил,то пробегвемся по всем табличкам и вставлем None
-        # во все котоые сегодня не вошли в топ 120.
-        insert_missing_records(connection=psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            dbname=os.getenv("DB_NAME")
-        ))
-        # Сохраняем рейтинг для фронт сайда.
-        get_list_medias_as_json(connection=psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            dbname=os.getenv("DB_NAME")
-        ))
+        # Повторно парсим, если в первый раз по какой-то причине что-то не с парсилось.
+        try:
+            full_cycle()
+        except Exception as e:
+            print('Error: ', e)
+        finally:
+            # Если и во второй раз по какойто причине что-то не спарсил,то пробегвемся по всем табличкам и вставлем None
+            # во все котоые сегодня не вошли в топ 120.
+            insert_missing_records(connection=psycopg2.connect(
+                host=os.getenv("DB_HOST"),
+                port=os.getenv("DB_PORT"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                dbname=os.getenv("DB_NAME")
+            ))
+            # Сохраняем рейтинг для фронта.
+            get_list_medias_as_json(connection=psycopg2.connect(
+                host=os.getenv("DB_HOST"),
+                port=os.getenv("DB_PORT"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                dbname=os.getenv("DB_NAME")
+            ))
+
+
+if __name__ == "__main__":
+    main()

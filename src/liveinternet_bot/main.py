@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 import requests
-import config
 import asyncio
 import logging
 
+
+from src.liveinternet_bot import config
+from src.utils.CheckURL import CheckURL
+from src.utils.plot import plot_traffic
 from aiogram.enums.parse_mode import ParseMode
-from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from aiogram import Router
@@ -19,29 +21,13 @@ from aiogram.filters import CommandStart, Command
 rt = Router()
 
 
-class CheckURL(StatesGroup):
-    waiting_for_url = State()
-    waiting_for_date = State()
-
-
-def plot_traffic(x, y):
-    # Проверяем количество данных
-    if len(x) > 1 and len(y) > 1:
-        # Если есть достаточно данных, строим линейный график
-        plt.plot(x, y)
-    elif len(x) == 1 and len(y) == 1:
-        # Если данных меньше двух значений, строим точечный график
-        plt.scatter(x, y)
-
-    # Настройка осей и отображение графика
-    plt.xlabel("Дата")
-    plt.ylabel("Трафик")
-    plt.title("График трафика")
-
-
 # Обработчик команды /check_url
 @rt.message(CommandStart())
 async def start_check_url(message: types.Message, state: FSMContext):
+    """ Обработчик команды /start
+        Просит пользователя отправить сообщением URL,
+        после чего встаёт в состояние ожидания сообщения.
+    """
     await message.reply("Отправьте мне URL интересующего вас сайта")
     # Переходим в состояние ожидания URL
     await state.set_state(CheckURL.waiting_for_url)
@@ -49,7 +35,11 @@ async def start_check_url(message: types.Message, state: FSMContext):
 
 # Обработчик ввода URL
 @rt.message(StateFilter(CheckURL.waiting_for_url))
-async def check_url(message: types.Message, state: FSMContext):
+async def check_url_and_waiting_date(message: types.Message, state: FSMContext):
+    """Обработчик состояния ожидания URL
+       Получает URL от пользователя, выполняет запрос к API,
+       проверяет наличие данных и запрашивает дату, если данные найдены.
+    """
     # Получаем URL из сообщения пользователя
     domain = message.text
 
@@ -78,6 +68,10 @@ async def check_url(message: types.Message, state: FSMContext):
 # Обработчик ввода даты
 @rt.message(StateFilter(CheckURL.waiting_for_date))
 async def process_date(message: types.Message, state: FSMContext):
+    """ Обработчик состояния ожидания даты
+        Получает дату от пользователя, проверяет наличие данных
+        в указанный период и отправляет график трафика.
+    """
     # Получаем дату из сообщения пользователя
     date_1 = message.text
     data_dict = await state.get_data()
@@ -103,9 +97,9 @@ async def process_date(message: types.Message, state: FSMContext):
             if start_date <= date <= end_date:
                 x.append(date)
                 y.append(value)
-        '''else:
+        if not x:
             await message.reply("Даты не найдены или введены некорректно")
-            return'''
+            return
     else:
         await message.reply("Введено слишком много дат")
         return
@@ -117,6 +111,9 @@ async def process_date(message: types.Message, state: FSMContext):
 
 
 async def send_plot(message: types.Message, x, y):
+    """Отправка графика трафика пользователю
+       Создает график на основе переданных данных и отправляет его пользователю.
+    """
     await message.bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.UPLOAD_PHOTO)
 
     # Создаем график и сохраняем его в буферный объект BytesIO
@@ -124,6 +121,7 @@ async def send_plot(message: types.Message, x, y):
     local_plt = plt
     plot_traffic(x, y)
     local_plt.savefig(buffer, format='png')
+    plt.clf()
     buffer.seek(0)  # Перемещаем указатель в начало буфера
 
     # Получаем байтовую строку из буферного объекта BytesIO
@@ -134,6 +132,9 @@ async def send_plot(message: types.Message, x, y):
 
 @rt.message(Command("help"))
 async def handle_help(message: types.Message):
+    """ Обработчик команды /help
+        Отправляет сообщение с краткой информацией о боте.
+    """
     await message.bot.send_message(message.from_user.id,
                                    'Бот "Historical liveinternet" предназначен для пострения графиков трафика '
                                    'новостных сайтов.\n'
@@ -148,11 +149,12 @@ async def main():
     bot = Bot(token=config.BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp.include_router(rt)
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+
+    try:
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    except asyncio.CancelledError:
+        logging.info("Polling task was cancelled")
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit) as e:
-        print(e)
+    asyncio.run(main())

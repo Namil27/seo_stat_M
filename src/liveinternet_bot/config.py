@@ -1,1 +1,3 @@
-BOT_TOKEN = "6711580073:AAFgrusW-C3PRosm3G4dERDMrEXO1Ytwuio"
+from decouple import config
+
+BOT_TOKEN = config('BOT_TOKEN')

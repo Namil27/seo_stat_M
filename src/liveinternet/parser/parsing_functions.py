@@ -1,10 +1,15 @@
+import os
+import random
+import time
 import requests
 import json
+from PIL import Image
+from io import BytesIO
 
 
 def add_redaction_table(red_name: str, connection):
     """
-    Эта функция создает таблицу для СМИ в в базе данных liveinternet.
+    Эта функция создает таблицу для СМИ в базе данных liveinternet.
 
     :param red_name: Название СМИ.
     :param connection: Объект, представляющий открытое соединение с базой данных.
@@ -33,22 +38,22 @@ def add_redaction_table(red_name: str, connection):
     connection.commit()
 
 
-def add_data_in_table(name_redacton: str, today_date: str, traffic: int, connection):
+def add_data_in_table(name_redaction: str, today_date: str, traffic: int, connection):
     """
     Добавляет данные в табличку СМИ.
 
-    :param name_redacton: Название СМИ.
+    :param name_redaction: Название СМИ.
     :param today_date: Сегодняшняя дата в формате yy-mm-dd.
-    :param traffic: Траффик.
+    :param traffic: Трафик.
     :param connection: Объект, представляющий открытое соединение с базой данных.
 
     """
 
     cursor = connection.cursor()
-    sql_insert_cmd = f"""INSERT INTO "{name_redacton}" VALUES (CURRENT_DATE, {traffic});"""
+    sql_insert_cmd = f"""INSERT INTO "{name_redaction}" VALUES (CURRENT_DATE, {traffic});"""
 
-    cursor.execute(f"""SELECT * FROM "{name_redacton}" ORDER BY date DESC LIMIT 1;""")
-    # print(name_redacton)
+    cursor.execute(f"""SELECT * FROM "{name_redaction}" ORDER BY date DESC LIMIT 1;""")
+    # print(name_redaction)
     result = cursor.fetchone()
 
     if result is not None:
@@ -72,7 +77,7 @@ def insert_missing_records(connection):
     """
     Функция для вставки отсутствующих записей в таблицы базы данных liveinternet.
 
-    :param connection: объект соединения psycopg2, соединение с базой данных PostgreSQL.
+    :param connection: Объект соединения psycopg2, соединение с базой данных PostgreSQL.
 
     Эта функция перебирает каждую таблицу в базе данных liveinternet и проверяет, существует ли запись для текущей даты.
     Если нет, она вставляет запись с текущей датой и значением трафика NULL.
@@ -103,32 +108,35 @@ def insert_missing_records(connection):
 
 def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
     """
-    Берет рейтинг с сайта www.liveinternet.ru сразу с нескольких страниц, и возвращает данные в виде списука.
+    Берет рейтинг с сайта www.liveinternet.ru сразу с нескольких страниц, и возвращает данные в виде списка.
 
-    :param start_page: Стартовая страница, с которой начинаеться сбор рейтинга (от самых популярных).
-    :param end_page: Конечная страница, на которой заканчиваеться сбор рейтинга (к менее популярным).
-    :return today_reit: Список с картежами формата (название СМИ(строка), трафик(цулое число))
+    :param start_page: Стартовая страница, с которой начинается сбор рейтинга (от самых популярных).
+    :param end_page: Конечная страница, на которой заканчивается сбор рейтинга (к менее популярным).
+    :return today_reit: Список с картежами формата (название СМИ(строка), трафик(целое число))
     """
     # Список с возможным ненужным синтаксисом в названии редакций.
-    litterals = [
+    literals = [
         '/', 'www.'
     ]
+    delay = random.choice([0.1, 0.2, 0.3, 0.4, 0.5])
     today_reit = []
 
     for i in range(start_page, end_page + 1):
         url_stat = f"https://www.liveinternet.ru/rating/ru/media/today.tsv?page={i}"
-        # Разбили строку на спиок, в каждом элементе которого храняться данные о редакции в строков виде.
+        # Разбили строку на список, в каждом элементе которого хранятся данные о редакции в строковом виде.
         data_arr = requests.get(url_stat).text.split('\n')
         # Разбиваем каждую строку по символу "/", и вытаскиваем данные на 3 и 4 позиции(название и инфа соответственно).
         for edition in data_arr[1:-2]:
             name = repr(edition).split('\\')[1][1:]
             stat = int(repr(edition).split('\\')[3][1:])
             # Делаем имена редакций читабельными.
-            for litteral in litterals:
-                if litteral in name:
-                    name = name.replace(litteral, '')
+            for literal in literals:
+                if literal in name:
+                    name = name.replace(literal, '')
             # Добавляем данные в список в виде кортежа.
             today_reit.append((name, stat))
+
+            time.sleep(delay)
 
     return today_reit
 
@@ -137,8 +145,7 @@ def get_list_medias_as_json(connection):
     """
     Функция для извлечения последних записей из таблиц базы данных liveinternet и сохранения в файл JSON.
 
-    :param connection: объект соединения psycopg2, cоединение с базой данных PostgreSQL.
-
+    :param connection: Объект соединения psycopg2, соединение с базой данных PostgreSQL.
     :return: None
 
     Эта функция выполняет SQL-запросы для каждой таблицы в базе данных "liveinternet" с целью получения последней
@@ -169,3 +176,35 @@ def get_list_medias_as_json(connection):
                 json.dump(sorted_records, json_file, indent=4)
     except Exception as e:
         print(f"Error: {e}")
+
+
+def parsing_ico(media: str):
+    """
+       Функция для загрузки и сохранения иконки с веб-сайта liveinternet.ru.
+
+       Эта функция принимает имя медиа (media), формирует URL для загрузки иконки в формате ICO,
+       проверяет, существует ли иконка в локальной директории, и, если не существует, загружает ее,
+       сохраняет в указанную директорию и делает задержку на случайное время от 0.1 до 0.5 секунд.
+
+       :param media: Имя медиа, используемое для формирования URL и имени файла иконки.
+       """
+    # URL иконки
+    url = f"https://www.liveinternet.ru/favicon/{media}.ico"
+    icon_name = f"{media}.ico"
+    delay = random.choice([0.1, 0.2, 0.3, 0.4, 0.5])
+    # Директория для сохранения иконок
+    icon_dir = 'src/liveinternet/public/images/icons'
+    icon_path = icon_dir + '/' + icon_name
+    if not os.path.exists(icon_path):
+        try:
+            # Загрузка ICO файла с веб-сайта
+            response = requests.get(url)
+            # Открытие изображения с помощью Pillow
+            icon = Image.open(BytesIO(response.content))
+            # Сохранение иконки
+            icon.save(f"src/liveinternet/public/images/icons/{media}.ico")
+            time.sleep(delay)
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        pass

@@ -1,0 +1,87 @@
+version: '3.7'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: i@eS*gs@4fSwBg\
+      POSTGRES_USER: postgres
+      POSTGRES_DB: liveinternet
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  fastapiapp:
+    build: ./api
+    container_name: liveinternet_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+      - shared_data:/app/data
+    depends_on:
+      - timescaledb
+    restart: unless-stopped
+    environment:
+      DB_HOST: timescaledb
+      DB_PORT: 5432
+      DB_USER: api
+      DB_PASSWORD: super_hard_password
+      DB_NAME: liveinternet
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  parser:
+    build: ./parser
+    container_name: liveinternet_parser
+    volumes:
+      - ./parser:/app
+      - shared_data:/app/data
+    depends_on:
+      - timescaledb
+    restart: unless-stopped
+    environment:
+      DB_HOST: timescaledb
+      DB_PORT: 5432
+      DB_USER: parser
+      DB_PASSWORD: mega_hard_password_qwerty
+      DB_NAME: liveinternet
+    command: [ "/bin/bash", "/app/start.sh" ]
+
+  flaskapp:
+    build: ./web
+    container_name: liveinternet_web
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: app.py
+    volumes:
+      - ./web:/app
+    depends_on:
+      - fastapiapp
+    command: flask run --host=0.0.0.0
+    networks:
+      - webnet
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - flaskapp
+    networks:
+      - webnet
+
+volumes:
+  db:
+  shared_data:
+
+networks:
+  webnet:
+    driver: bridge

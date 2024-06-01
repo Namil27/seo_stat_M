@@ -5,6 +5,7 @@ import requests
 import json
 from PIL import Image
 from io import BytesIO
+from user_agents import USER_AGENTS
 
 
 def add_redaction_table(red_name: str, connection):
@@ -118,13 +119,14 @@ def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
     literals = [
         '/', 'www.'
     ]
-    delay = random.choice([0.1, 0.2, 0.3, 0.4, 0.5])
+    delay = random.choice([0.1, 0.2])
     today_reit = []
 
     for i in range(start_page, end_page + 1):
         url_stat = f"https://www.liveinternet.ru/rating/ru/media/today.tsv?page={i}"
+        headers = {'User-Agent': random.choice(USER_AGENTS)}
         # Разбили строку на список, в каждом элементе которого хранятся данные о редакции в строковом виде.
-        data_arr = requests.get(url_stat).text.split('\n')
+        data_arr = requests.get(url_stat, headers=headers).text.split('\n')
         # Разбиваем каждую строку по символу "/", и вытаскиваем данные на 3 и 4 позиции(название и инфа соответственно).
         for edition in data_arr[1:-2]:
             name = repr(edition).split('\\')[1][1:]
@@ -191,7 +193,7 @@ def parsing_ico(media: str):
     # URL иконки
     url = f"https://www.liveinternet.ru/favicon/{media}.ico"
     icon_name = f"{media}.ico"
-    delay = random.choice([0.1, 0.2, 0.3, 0.4, 0.5])
+    delay = random.choice([0.1, 0.2])
     # Директория для сохранения иконок
     icon_dir = '../public/images/icons'
     icon_path = icon_dir + '/' + icon_name
@@ -199,7 +201,7 @@ def parsing_ico(media: str):
     if not os.path.exists(icon_path):
         try:
             # Загрузка ICO файла с веб-сайта
-            response = requests.get(url)
+            response = requests.get(url, headers={'User-Agent': random.choice(USER_AGENTS)})
             # Открытие изображения с помощью Pillow
             icon = Image.open(BytesIO(response.content))
             # Сохранение иконки

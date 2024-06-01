@@ -17,7 +17,7 @@ def full_cycle():
         dbname=os.getenv("DB_NAME")
     )
     # Сохраняем данные в today_media_reit.
-    today_media_reit = pars_reit_today(1, 4)
+    today_media_reit = pars_reit_today(1, 144)
     current_date = datetime.now().strftime('%Y-%m-%d')
     # Пробегаемся по каждому сми и записываем данные в соответствующую табличку в БД и парсим иконки.
     for media in today_media_reit:

@@ -193,8 +193,9 @@ def parsing_ico(media: str):
     icon_name = f"{media}.ico"
     delay = random.choice([0.1, 0.2, 0.3, 0.4, 0.5])
     # Директория для сохранения иконок
-    icon_dir = 'src/liveinternet/public/images/icons'
+    icon_dir = '../public/images/icons'
     icon_path = icon_dir + '/' + icon_name
+
     if not os.path.exists(icon_path):
         try:
             # Загрузка ICO файла с веб-сайта
@@ -202,7 +203,7 @@ def parsing_ico(media: str):
             # Открытие изображения с помощью Pillow
             icon = Image.open(BytesIO(response.content))
             # Сохранение иконки
-            icon.save(f"src/liveinternet/public/images/icons/{media}.ico")
+            icon.save(icon_path)
             time.sleep(delay)
         except Exception as e:
             print(f"Error: {e}")

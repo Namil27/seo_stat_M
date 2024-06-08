@@ -58,6 +58,7 @@ def add_data_in_table(name_redaction: str, today_date: str, traffic: int, connec
     result = cursor.fetchone()
 
     if result is not None:
+        # Все преобразования ниже приводят данные в нужный вид, для сравнивания
         last_date_obj = result[0]
         last_date_year = str(last_date_obj.year)
         last_date_month = str(last_date_obj.month) if last_date_obj.month // 10 != 0 else '0' + str(last_date_obj.month)
@@ -92,7 +93,9 @@ def insert_missing_records(connection):
 
     # Пробегаемся по каждой таблице
     for table in tables:
-        table_name = table[0]
+        table_name = table[0] if not table[0] == "domain_mapping" else None
+        if table_name is None:
+            continue
 
         # Проверяем, была ли сделана запись за сегодняшний день
         cursor.execute(f"""SELECT COUNT(*) FROM "{table_name}" WHERE date = CURRENT_DATE;""")
@@ -102,12 +105,12 @@ def insert_missing_records(connection):
         if count == 0:
             cursor.execute(f"""INSERT INTO "{table_name}" (date, traffic) VALUES (CURRENT_DATE, NULL);""")
             connection.commit()
-            # print(f"""Вставлена запись в таблицу "{table_name}" за {current_date} с traffic = None""")
+            # print(f"""Вставлена запись в таблицу "{table_name}" за сегодня с traffic = None""")
 
     connection.close()
 
 
-def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
+def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, str, int]]:
     """
     Берет рейтинг с сайта www.liveinternet.ru сразу с нескольких страниц, и возвращает данные в виде списка.
 
@@ -127,23 +130,57 @@ def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, int]]:
         headers = {'User-Agent': random.choice(USER_AGENTS)}
         # Разбили строку на список, в каждом элементе которого хранятся данные о редакции в строковом виде.
         data_arr = requests.get(url_stat, headers=headers).text.split('\n')
-        # Разбиваем каждую строку по символу "/", и вытаскиваем данные на 3 и 4 позиции(название и инфа соответственно).
+        # Разбиваем каждую строку по символу "/", и вытаскиваем данные на 2 и 4 позиции(название и инфа соответственно).
         for edition in data_arr[1:-2]:
-            name = repr(edition).split('\\')[1][1:]
-            stat = int(repr(edition).split('\\')[3][1:])
+            data_list = repr(edition).split('\\')
+            domain = data_list[1][1:]
+            unique_id = data_list[0][1:]
             # Делаем имена редакций читабельными.
             for literal in literals:
-                if literal in name:
-                    name = name.replace(literal, '')
+                if literal in domain:
+                    domain = domain.replace(literal, '')
+            try:
+                stat = int(data_list[3][1:])
+
+            except Exception as e:
+                print(f"Error: {e}")
+                continue
+
             # Добавляем данные в список в виде кортежа.
-            today_reit.append((name, stat))
+            today_reit.append((unique_id, domain, stat))
 
             time.sleep(delay)
-
     return today_reit
 
 
-def get_list_medias_as_json(connection):
+def get_domain_name_by_uniq_id(connection, uniq_id: str) -> str:
+    """
+    Синхронная функция для получения имени домена (domain_name) по уникальному идентификатору (uniq_id).
+
+    :param connection: Соединение с базой данных PostgreSQL.
+    :param uniq_id: Уникальный идентификатор, для которого нужно получить имя домена.
+    :return: Имя домена (domain_name), соответствующее переданному уникальному идентификатору.
+    :raises Exception: Если происходит ошибка при выполнении SQL команды или если 'uniq_id' не найден.
+    """
+    query = '''
+        SELECT domain_name
+        FROM domain_mapping
+        WHERE uniq_id = %s
+    '''
+    try:
+        cursor = connection.cursor()
+        cursor.execute(query, (uniq_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        if result is None:
+            raise Exception(f"Не найдено записи для uniq_id: {uniq_id}")
+        return result[0]
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        raise
+
+
+def get_last_data_medias_json(connection):
     """
     Функция для извлечения последних записей из таблиц базы данных liveinternet и сохранения в файл JSON.
 
@@ -162,20 +199,21 @@ def get_list_medias_as_json(connection):
             cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
             rows = cursor.fetchall()
             last_records = {}
-
             for row in rows:
-                media = row[0]
-                cursor.execute(f"""SELECT traffic FROM "{media}" ORDER BY date DESC LIMIT 1""")
+                uniq_id = row[0] if not row[0] == "domain_mapping" else None
+                if uniq_id is None:
+                    continue
+                media = get_domain_name_by_uniq_id(connection, uniq_id)
+                cursor.execute(f"""SELECT traffic FROM "{uniq_id}" ORDER BY date DESC LIMIT 1""")
                 last_traffic = cursor.fetchone()[0]
                 last_records[media] = last_traffic
             # Сортировка словаря по убыванию ключей
             sorted_records = dict(
                 sorted(last_records.items(), key=lambda x: x[1] if x[1] is not None else float('-inf'), reverse=True)
             )
-
             # Сохранение словаря в файл JSON
             with open("/app/data/rating.json", "w") as json_file:
-                json.dump(sorted_records, json_file, indent=4)
+                json.dump(sorted_records, json_file, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"Error: {e}")
 
@@ -211,3 +249,40 @@ def parsing_ico(media: str):
             print(f"Error: {e}")
     else:
         pass
+
+
+def domain_mapper(connection, domain_name: str, uniq_id: str):
+    """
+       Функция для вставки или обновления сопоставления домена в базе данных.
+
+       Эта функция создает таблицу с именем 'domain_mapping', если она еще не существует,
+       с колонками 'uniq_id' (TEXT, первичный ключ, NOT NULL) и 'domain_name' (TEXT, NOT NULL).
+       Затем она вставляет новую запись с 'uniq_id' и 'domain_name'. Если строка с таким же
+       'uniq_id' уже существует, то функция обновляет 'domain_name' для этого 'uniq_id'.
+
+       :param connection: Объект подключения psycopg2 к базе данных PostgreSQL.
+       :param domain_name: Имя домена, которое нужно вставить или обновить.
+       :param uniq_id: Уникальный идентификатор, связанный с именем домена.
+
+       :raises Exception: Если происходит ошибка при выполнении SQL команд.
+    """
+    add_mapping_table = '''
+        CREATE TABLE IF NOT EXISTS domain_mapping (
+            uniq_id TEXT PRIMARY KEY NOT NULL,
+            domain_name TEXT NOT NULL
+        )
+    '''
+    insert_sql_com = '''
+        INSERT INTO domain_mapping (uniq_id, domain_name)
+        VALUES (%s, %s)
+        ON CONFLICT (uniq_id) DO UPDATE SET domain_name = EXCLUDED.domain_name
+    '''
+
+    try:
+        with connection.cursor() as cursor:
+            # Создание таблицы, если она еще не создана
+            cursor.execute(add_mapping_table)
+            cursor.execute(insert_sql_com, (uniq_id, domain_name))
+            connection.commit()
+    except Exception as e:
+        print(f"Error: {e}")

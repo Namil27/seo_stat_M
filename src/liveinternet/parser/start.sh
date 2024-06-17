@@ -4,7 +4,7 @@
     echo "SHELL=/bin/bash"
     echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     env
-    echo "55 20 * * * /usr/local/bin/python3 /app/parser.py >> /var/log/cron.log 2>&1" # задача cron
+    echo "40 20 * * * /usr/local/bin/python3 /app/parser.py >> /var/log/cron.log 2>&1" # задача cron
 } > /etc/cron.d/parser-cron
 
 # Установка прав и активация нового файла crontab

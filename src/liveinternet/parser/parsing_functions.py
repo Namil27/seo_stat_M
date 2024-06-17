@@ -229,7 +229,7 @@ def parsing_ico(media: str):
     icon_name = f"{media}.ico"
     delay = random.choice([0.1, 0.2])
     # Директория для сохранения иконок
-    icon_dir = '/icons'
+    icon_dir = 'icons'
     icon_path = icon_dir + '/' + icon_name
 
     if not os.path.exists(icon_path):

@@ -25,8 +25,6 @@ def full_cycle():
         add_data_in_table(media[0], current_date, media[2], connection)
         domain_mapper(connection, media[1], media[0])
         parsing_ico(media[1])
-    # Закрываем конект.
-    connection.close()
 
 
 def main():
@@ -43,8 +41,8 @@ def main():
         except Exception as e:
             print('Error: ', e)
         finally:
-            # Если и во второй раз по какойто причине что-то не спарсил,то пробегвемся по всем табличкам и вставлем None
-            # во все котоые сегодня не вошли в топ 120.
+            # Если во второй раз по какой-то причине что-то не спарсил,то пробегаемся по всем табличкам и вставляем None
+            # во все те, что сегодня не вошли в топ 50 страниц.
             insert_missing_records(connection=psycopg2.connect(
                 host=os.getenv("DB_HOST"),
                 port=os.getenv("DB_PORT"),

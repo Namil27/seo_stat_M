@@ -8,11 +8,11 @@ from io import BytesIO
 from user_agents import USER_AGENTS
 
 
-def add_redaction_table(red_name: str, connection):
+def add_redaction_table(uniq_id: str, connection):
     """
     Эта функция создает таблицу для СМИ в базе данных liveinternet.
 
-    :param red_name: Название СМИ.
+    :param uniq_id: Название СМИ.
     :param connection: Объект, представляющий открытое соединение с базой данных.
 
     """
@@ -20,7 +20,7 @@ def add_redaction_table(red_name: str, connection):
     cursor = connection.cursor()
     # Создаем таблицу для СМИ.
     cursor.execute(f"""
-    CREATE TABLE IF NOT EXISTS "{red_name}" (
+    CREATE TABLE IF NOT EXISTS "{uniq_id}" (
         date DATE,
         traffic INTEGER
     );
@@ -28,14 +28,13 @@ def add_redaction_table(red_name: str, connection):
     DO $$ BEGIN
         IF NOT EXISTS (
             SELECT 1 FROM information_schema.tables
-            WHERE table_schema = 'public' AND table_name = '{red_name}'
+            WHERE table_schema = 'public' AND table_name = '{uniq_id}'
         ) THEN
-            SELECT create_hypertable('{red_name}', 'date');
+            SELECT create_hypertable('{uniq_id}', 'date');
         END IF;
     END $$;
     """)
 
-    # Сохраняем изменения и закрываем соединение
     connection.commit()
 
 
@@ -59,11 +58,7 @@ def add_data_in_table(name_redaction: str, today_date: str, traffic: int, connec
 
     if result is not None:
         # Все преобразования ниже приводят данные в нужный вид, для сравнивания
-        last_date_obj = result[0]
-        last_date_year = str(last_date_obj.year)
-        last_date_month = str(last_date_obj.month) if last_date_obj.month // 10 != 0 else '0' + str(last_date_obj.month)
-        last_date_day = str(last_date_obj.day) if last_date_obj.day // 10 != 0 else '0' + str(last_date_obj.day)
-        last_date = last_date_year + '-' + last_date_month + '-' + last_date_day
+        last_date = result[0].strftime('%Y-%m-%d')
         # Если запись не существует, выполнить запись данных
         if last_date != today_date:
             cursor.execute(sql_insert_cmd)
@@ -106,8 +101,6 @@ def insert_missing_records(connection):
             cursor.execute(f"""INSERT INTO "{table_name}" (date, traffic) VALUES (CURRENT_DATE, NULL);""")
             connection.commit()
             # print(f"""Вставлена запись в таблицу "{table_name}" за сегодня с traffic = None""")
-
-    connection.close()
 
 
 def pars_reit_today(start_page: int, end_page: int) -> list[tuple[str, str, int]]:
@@ -176,7 +169,7 @@ def get_domain_name_by_uniq_id(connection, uniq_id: str) -> str:
             raise Exception(f"Не найдено записи для uniq_id: {uniq_id}")
         return result[0]
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f"Error: {e}")
         raise
 
 
@@ -214,6 +207,9 @@ def get_last_data_medias_json(connection):
             # Сохранение словаря в файл JSON
             with open("/app/data/rating.json", "w") as json_file:
                 json.dump(sorted_records, json_file, ensure_ascii=False, indent=4)
+            # Закрываем соединение.
+            connection.close()
+
     except Exception as e:
         print(f"Error: {e}")
 
@@ -279,10 +275,11 @@ def domain_mapper(connection, domain_name: str, uniq_id: str):
     '''
 
     try:
-        with connection.cursor() as cursor:
-            # Создание таблицы, если она еще не создана
-            cursor.execute(add_mapping_table)
-            cursor.execute(insert_sql_com, (uniq_id, domain_name))
-            connection.commit()
+        cursor = connection.cursor()
+        # Создание таблицы, если она еще не создана
+        cursor.execute(add_mapping_table)
+        cursor.execute(insert_sql_com, (uniq_id, domain_name))
+        connection.commit()
+        cursor.close()
     except Exception as e:
         print(f"Error: {e}")

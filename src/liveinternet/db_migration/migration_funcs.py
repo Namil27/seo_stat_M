@@ -60,6 +60,39 @@ def get_uniq_id_by_domain_name_sinx(connection, domain_name: str) -> str:
         raise
 
 
+def get_domain_name_by_uniq_id(connection, uniq_id: str) -> str:
+    """
+    Синхронная функция для получения имени домена (domain_name) по уникальному идентификатору (uniq_id).
+
+    Эта функция выполняет запрос к таблице 'domain_mapping' для получения 'domain_name',
+    соответствующего переданному 'uniq_id'.
+
+    :param connection: Соединение с базой данных PostgreSQL.
+    :param uniq_id: Уникальный идентификатор, для которого нужно получить имя домена.
+    :return: Имя домена (domain_name), соответствующее уникальному идентификатору.
+    :raises Exception: Если происходит ошибка при выполнении SQL команды или если 'uniq_id' не найден.
+    """
+    query = '''
+        SELECT domain_name
+        FROM domain_mapping
+        WHERE uniq_id = %s
+    '''
+    try:
+        # Открываем курсор для выполнения запроса
+        with connection.cursor() as cursor:
+            # Выполнение запроса и получение результата
+            cursor.execute(query, (uniq_id,))
+            result = cursor.fetchone()
+
+            if result is None:
+                raise Exception(f"Не найдено записи для uniq_id: {uniq_id}")
+
+            return result[0]
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        raise
+
+
 def save_data_as_json(connection, domain_name: str):
     """
     Эта функция извлекает все данные из указанной таблицы в базе данных PostgreSQL и сохраняет их в JSON файл.

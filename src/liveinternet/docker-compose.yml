@@ -32,7 +32,7 @@ services:
       DB_USER: api
       DB_PASSWORD: super_hard_password
       DB_NAME: liveinternet
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
 
   parser:
     build: ./parser
@@ -40,7 +40,6 @@ services:
     volumes:
       - ./parser:/app
       - shared_data:/app/data
-      - icons:/app/icons
     depends_on:
       - timescaledb
     restart: unless-stopped
@@ -50,7 +49,7 @@ services:
       DB_USER: parser
       DB_PASSWORD: mega_hard_password_qwerty
       DB_NAME: liveinternet
-    command: ["/bin/bash", "/app/start.sh"]
+    command: [ "/bin/bash", "/app/start.sh" ]
 
   flaskapp:
     build: ./web
@@ -62,13 +61,27 @@ services:
       FLASK_APP: app.py
     volumes:
       - ./web:/app
-      - icons:/app/icons
     depends_on:
       - fastapiapp
     command: flask run --host=0.0.0.0
+    networks:
+      - webnet
 
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - flaskapp
+    networks:
+      - webnet
 
 volumes:
   db:
   shared_data:
-  icons:
+
+networks:
+  webnet:
+    driver: bridge

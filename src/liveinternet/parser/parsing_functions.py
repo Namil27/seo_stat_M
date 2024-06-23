@@ -155,14 +155,10 @@ def get_domain_name_by_uniq_id(connection, uniq_id: str) -> str:
     :return: Имя домена (domain_name), соответствующее переданному уникальному идентификатору.
     :raises Exception: Если происходит ошибка при выполнении SQL команды или если 'uniq_id' не найден.
     """
-    query = '''
-        SELECT domain_name
-        FROM domain_mapping
-        WHERE uniq_id = %s
-    '''
+    query = f"""SELECT domain_name FROM "domain_mapping" WHERE uniq_id = '{uniq_id}';"""
     try:
         cursor = connection.cursor()
-        cursor.execute(query, (uniq_id,))
+        cursor.execute(query)
         result = cursor.fetchone()
         cursor.close()
         if result is None:
@@ -186,28 +182,44 @@ def get_last_data_medias_json(connection):
     ошибка будет выведена в консоль.
 
     """
-
     try:
         with connection.cursor() as cursor:
+            # Создаем список всех таблиц в нашей базе данных (имя таблицы - уникальный идентификатор сми)
             cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
             rows = cursor.fetchall()
+            # В словарь будем сохраняться данные для JSONа.
             last_records = {}
+
             for row in rows:
+                # Учитываем наличие 1 таблицы, которая не участвует в нашей функции.
                 uniq_id = row[0] if not row[0] == "domain_mapping" else None
                 if uniq_id is None:
                     continue
+                # Находим домен, который соответствует уникальному идентификатору (по нему и будем формировать JSON)
                 media = get_domain_name_by_uniq_id(connection, uniq_id)
+                # Вытаскиваем последнюю запись из таблицы по уникальному идентификатору.
                 cursor.execute(f"""SELECT traffic FROM "{uniq_id}" ORDER BY date DESC LIMIT 1""")
                 last_traffic = cursor.fetchone()[0]
-                last_records[media] = last_traffic
-            # Сортировка словаря по убыванию ключей
+                # Проверка на наличие уже такого ключа в словаре.
+                if media in last_records:
+                    if last_traffic is None:
+                        continue
+                    elif last_records[media] is None:
+                        last_records[media] = last_traffic
+                    else:
+                        # Если такой ключ уже существует, то к нему присваиваем максимальное значение.
+                        last_records[media] = max(last_records[media], last_traffic)
+                else:
+                    # Если нет, то просто создаем его и присваиваем ему значение.
+                    last_records[media] = last_traffic
+            # Сортировка словаря по убыванию ключей.
             sorted_records = dict(
                 sorted(last_records.items(), key=lambda x: x[1] if x[1] is not None else float('-inf'), reverse=True)
             )
             # Сохранение словаря в файл JSON
             with open("/app/data/rating.json", "w") as json_file:
                 json.dump(sorted_records, json_file, ensure_ascii=False, indent=4)
-            # Закрываем соединение.
+
             connection.close()
 
     except Exception as e:
@@ -283,3 +295,4 @@ def domain_mapper(connection, domain_name: str, uniq_id: str):
         cursor.close()
     except Exception as e:
         print(f"Error: {e}")
+        

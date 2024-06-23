@@ -64,4 +64,4 @@ if __name__ == "__main__":
     star_time = time.time()
     main()
     end_time = time.time()
-    print(f"Парсер работал {star_time - end_time} секунд.")
+    print(f"Парсер работал {end_time - star_time} секунд.")

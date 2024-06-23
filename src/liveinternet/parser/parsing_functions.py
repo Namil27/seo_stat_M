@@ -241,7 +241,7 @@ def parsing_ico(media: str):
     icon_name = f"{media}.ico"
     delay = random.choice([0.1, 0.2])
     # Директория для сохранения иконок
-    icon_dir = 'app/icons'
+    icon_dir = '/app/icons'
     icon_path = icon_dir + '/' + icon_name
 
     if not os.path.exists(icon_path):
@@ -295,3 +295,4 @@ def domain_mapper(connection, domain_name: str, uniq_id: str):
         cursor.close()
     except Exception as e:
         print(f"Error: {e}")
+        

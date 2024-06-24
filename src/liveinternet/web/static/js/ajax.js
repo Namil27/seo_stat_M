@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
             button.classList.add('sidebar-button', 'link-offset-2', 'link-offset-3-hover', 'link-underline', 'link-underline-opacity-0', 'link-underline-opacity-75-hover');
             button.setAttribute('data-section', item.link);
             button.innerHTML = `<div class="truncate-140">
-                                    <img src="https://www.liveinternet.ru/favicon/${item.link}.ico" width="16" height="16" border="0">
+                                    <img src="/static/icons/${item.link}.ico" width="16" height="16" border="0">
                                     ${item.link}
                                 </div>`;
             linkTd.appendChild(button);
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const values = trimmedData.map(item => item.visitors !== null ? item.visitors : NaN); // Используем NaN для пропуска пустых точек
 
         const siteTitle = document.getElementById('site-name');
-        siteTitle.innerHTML = `<img src="https://www.liveinternet.ru/favicon/${site}.ico" width="24" height="24" border="0"> ${site}`;
+        siteTitle.innerHTML = `<img src="/static/icons/${site}.ico" width="24" height="24" border="0"> ${site}`;
 
         welcome.classList.add('hidden');
         mainContent.classList.remove('hidden');

@@ -63,7 +63,6 @@ services:
     volumes:
       - ./web:/app
       - icons:/app/static/icons
-      - static:/app/static
     depends_on:
       - fastapiapp
     command: flask run --host=0.0.0.0
@@ -75,7 +74,7 @@ services:
       context: ./nginx
     container_name: nginx
     volumes:
-      - static:/app/static
+      - icons:/app/static/icons
     ports:
       - "80:80"
     depends_on:
@@ -87,7 +86,6 @@ volumes:
   db:
   shared_data:
   icons:
-  static:
 
 networks:
   webnet:

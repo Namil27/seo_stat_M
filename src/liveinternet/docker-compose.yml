@@ -62,7 +62,6 @@ services:
       FLASK_APP: app.py
     volumes:
       - ./web:/app
-      - static:/app/static
       - icons:/app/static/icons
     depends_on:
       - fastapiapp
@@ -74,8 +73,6 @@ services:
     build:
       context: ./nginx
     container_name: nginx
-    volumes:
-      - static:/app/static
     ports:
       - "80:80"
     depends_on:
@@ -87,7 +84,6 @@ volumes:
   db:
   shared_data:
   icons:
-  static:
 
 networks:
   webnet:

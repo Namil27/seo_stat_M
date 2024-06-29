@@ -73,6 +73,8 @@ services:
     build:
       context: ./nginx
     container_name: nginx
+    volumes:
+      - icons:/app/static/icons
     ports:
       - "80:80"
     depends_on:

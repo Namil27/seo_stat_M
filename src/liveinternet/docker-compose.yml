@@ -62,8 +62,8 @@ services:
       FLASK_APP: app.py
     volumes:
       - ./web:/app
-      - icons:/app/static/icons
       - static:/app/static
+      - icons:/app/static/icons
     depends_on:
       - fastapiapp
     command: flask run --host=0.0.0.0

@@ -1,3 +1,4 @@
+import json
 import re
 
 import requests
@@ -6,7 +7,6 @@ from flask import Flask, render_template, request, jsonify
 from unidecode import unidecode
 
 app = Flask(__name__)
-
 
 def normalize_text(text):
     # Приведение текста к нижнему регистру и удаление специальных символов
@@ -87,11 +87,14 @@ def start():
     Примечания:
         - Функция использует функцию sidebar_gen для генерации данных боковой панели.
     """
+    site_title = 'Трафик российских СМИ в динамике'
     search = request.args.get('search')
     if not search:
         search = ''
     return render_template(template_name_or_list='main.html',
-                           left_table=sidebar_gen(search), search_text=search)
+                           left_table=sidebar_gen(search),
+                           search_text=search,
+                           site_title=site_title)
 
 
 @app.route('/content/<site>')
@@ -143,6 +146,34 @@ def content(site):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/csv/<site>')
+def export_csv(site):
+    start_date = request.args.get('s')
+    end_date = request.args.get('e')
+    if not start_date or not end_date:
+        return jsonify({'error': 'no args'}), 500
+    print(start_date, end_date)
+    api_url = f'http://23.111.123.4:8000/data/{site}'
+    response = requests.get(api_url)
+    raw_data = response.json()
+    table_data = [[key, value] for key, value in raw_data.items() if start_date <= key <= end_date][::-1]
+    print(table_data)
+    csv_data = [f'{index};"{line[0]}";{line[1]}' for index, line in enumerate(table_data, 1)]
+
+    return jsonify({'content': ' '.join(csv_data)})
+
+
+'''
+def export_csv(site):
+    api_url = f'http://23.111.123.4:8000/data/{site}'
+    response = requests.get(api_url)
+    raw_data = response.json()
+    table_data = [f'{index};"{key}";{value}' for index, (key, value) in enumerate(raw_data.items(), 1)]
+
+    return '\n'.join(table_data)
+    '''
+
+
 @app.route('/search')
 def search():
     query = request.args.get('q', '').lower()
@@ -152,4 +183,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(port=5122, debug=False)
+    app.run(port=9999, debug=True)

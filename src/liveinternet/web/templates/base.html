@@ -8,13 +8,10 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>LiveInternet Stats</title>
-    <link rel="icon"
-          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+    <title>{{ site_title }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/dashboard/">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css"/>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/jquery-ui.css') }}"/>
 
     <link href="{{ url_for('static', filename='/assets/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='/css/extra.css') }}" rel="stylesheet">
@@ -60,7 +57,7 @@
         <input type="text" class="form-control rounded-0" placeholder="Поиск СМИ" id="search-input" name="search">
     </form>
     <div class="w-100 navbar-brand container-fluid col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">
-        <a>🌐 LiveInternet Stats</a>
+        <a>🌐 {{ site_title }}</a>
         <button class="nav-link px-3 text-white d-md-none" type="button" data-bs-toggle="offcanvas"
             data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -129,7 +126,7 @@
             <div class="offcanvas-md sidebar-scroll offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu"
                  aria-labelledby="sidebarMenuLabel">
                 <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="sidebarMenuLabel">🌐 LiveInternet Stats</h5>
+                    <h6 class="offcanvas-title" id="sidebarMenuLabel">🌐 {{ site_title }}</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"
                             aria-label="Close"></button>
                 </div>
@@ -144,16 +141,13 @@
 </div>
 
 <script src="{{ url_for('static', filename='/assets/dist/js/bootstrap.bundle.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js"
+<script src="{{ url_for('static', filename='/js/chart.umd.js') }}"
         integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp"
         crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+<script src="{{ url_for('static', filename='/js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='/js/jquery-ui.js') }}"></script>
 <script src="{{ url_for('static', filename='/js/bootstrap-datepicker.js') }}"></script>
 <script src="{{ url_for('static', filename='/locales/bootstrap-datepicker.ru.min.js') }}"></script>
-
 <script src="{{ url_for('static', filename='/js/ajax.js') }}"></script>
-<script src="{{ url_for('static', filename='/dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='/dataTables.bootstrap5.js') }}"></script>
 </body>
 </html>

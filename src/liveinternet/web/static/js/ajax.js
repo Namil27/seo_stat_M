@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
             button.classList.add('sidebar-button', 'link-offset-2', 'link-offset-3-hover', 'link-underline', 'link-underline-opacity-0', 'link-underline-opacity-75-hover');
             button.setAttribute('data-section', item.link);
             button.innerHTML = `<div class="truncate-140">
-                                    <img src="https://www.liveinternet.ru/favicon/${item.link}.ico" width="16" height="16" border="0">
+                                    <img src="/static/icons/${item.link}.ico" width="16" height="16" border="0">
                                     ${item.link}
                                 </div>`;
             linkTd.appendChild(button);
@@ -90,26 +90,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     currentData = Object.keys(data.content).map(date => ({
                         date: date,
-                        visitors: data.content[date] !== null ? data.content[date] : null // Используем null для пропуска пустых точек
+                        visitors: data.content[date] !== null ? data.content[date] : null
                     }));
                     currentSite = site;
 
-                    // Инициализация datepicker с доступными датами
+                    // Определяем доступные даты
                     const availableDates = Object.keys(data.content).map(date => {
                         const [year, month, day] = date.split('-');
                         return new Date(year, month - 1, day);
                     });
+                    availableDates.sort((a, b) => a - b);
 
-                    availableDates.sort((a, b) => a - b); // Сортируем даты
+                    // Определяем диапазон последних 30 дней
+                    const today = new Date();
+                    const thirtyDaysAgo = new Date(today);
+                    thirtyDaysAgo.setDate(today.getDate() - 32);
 
-                    // Устанавливаем первую и последнюю даты
-                    const firstDate = availableDates[0];
-                    const lastDate = availableDates[availableDates.length - 1];
+                    // Фильтруем доступные даты для последних 30 дней
+                    const availableDatesLast30Days = availableDates.filter(date => date >= thirtyDaysAgo && date <= today);
 
-                    startDateInput.value = `${firstDate.getFullYear()}-${String(firstDate.getMonth() + 1).padStart(2, '0')}-${String(firstDate.getDate()).padStart(2, '0')}`;
-                    endDateInput.value = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
+                    // Если доступные даты последних 30 дней есть, устанавливаем их в datepicker
+                    if (availableDatesLast30Days.length > 0) {
+                        const firstDate = availableDatesLast30Days[0];
+                        const lastDate = availableDatesLast30Days[availableDatesLast30Days.length - 1];
 
-                    $('.input-daterange').datepicker('destroy'); // Удаляем предыдущий datepicker
+                        startDateInput.value = `${firstDate.getFullYear()}-${String(firstDate.getMonth() + 1).padStart(2, '0')}-${String(firstDate.getDate()).padStart(2, '0')}`;
+                        endDateInput.value = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
+                    } else {
+                        // Если нет данных за последние 30 дней, можно установить даты по умолчанию или обработать исключение
+                        console.log('Нет данных за последние 30 дней');
+                    }
+
+                    $('.input-daterange').datepicker('destroy');
                     $('.input-daterange').datepicker({
                         format: "yyyy-mm-dd",
                         language: "ru",
@@ -129,13 +141,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     });
 
-                    updateChartAndTable(currentData, site);
+                    // Фильтруем данные за последние 30 дней и обновляем график и таблицу
+                    filterDataByDate(startDateInput.value, endDateInput.value);
                 }
             })
             .catch(error => {
                 mainContent.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
             });
     }
+
+
+    function filterDataByDate(startDate, endDate) {
+        const filteredData = currentData.filter(item => {
+            const date = new Date(item.date);
+            return date >= new Date(startDate) && date <= new Date(endDate);
+        });
+        updateChartAndTable(filteredData, currentSite);
+    }
+
 
     function updateChartAndTable(data, site) {
         // Обрезаем конечные пустые данные для графика
@@ -152,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const values = trimmedData.map(item => item.visitors !== null ? item.visitors : NaN); // Используем NaN для пропуска пустых точек
 
         const siteTitle = document.getElementById('site-name');
-        siteTitle.innerHTML = `<img src="https://www.liveinternet.ru/favicon/${site}.ico" width="24" height="24" border="0"> ${site}`;
+        siteTitle.innerHTML = `<img src="/static/icons/${site}.ico" width="24" height="24" border="0"> ${site}`;
 
         welcome.classList.add('hidden');
         mainContent.classList.remove('hidden');
@@ -204,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Обновляем таблицу с исходными данными
-        updateTable(data.reverse());
+        updateTable(data);
     }
 
     function updateTable(data) {
@@ -222,14 +245,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function filterDataByDate(startDate, endDate) {
-        const filteredData = currentData.filter(item => {
-            const date = new Date(item.date);
-            return date >= new Date(startDate) && date <= new Date(endDate);
-        });
-        updateChartAndTable(filteredData.reverse(), currentSite);
-    }
-
     searchInput.addEventListener('input', function () {
         const query = searchInput.value;
         performSearch(query);
@@ -244,4 +259,66 @@ document.addEventListener('DOMContentLoaded', function () {
         welcome.classList.remove('hidden');
     }
     initializeButtonHandlers(); // Инициализируем обработчики событий для кнопок
+
+    // Функция экспорта в CSV
+    function exportToCsv() {
+        var csv = [];
+        const fileName = currentSite.replace(/\./g, '') + '_' + startDateInput.value + '_'
+            + endDateInput.value + '.csv'
+        console.log(fileName)
+        const url = `/csv/kp.ru?s=${startDateInput.value}&e=${endDateInput.value}`;
+
+        // Опции запроса
+        const options = {
+            method: 'GET', // тип запроса (GET, POST, etc.)
+            headers: {
+                'Content-Type': 'application/json' // заголовки запроса, если нужно
+            }
+        };
+
+        // Выполнение запроса
+        fetch(url, options)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json(); // преобразование ответа в JSON
+            })
+            .then(data => {
+                var csv = [];
+                var headers = ['"Индекс"', '"Дата"', '"Трафик"']; // Adjust header as needed
+                csv.push(headers.join(";"));
+
+                // Предположим, что data - это объект с полем 'content', в котором данные строки
+                let tableData = data['content'].split(" "); // Разделяем строку на элементы
+
+                // Пройдемся по каждому элементу в массиве tableData
+                for (var i = 0; i < tableData.length; i++) {
+                    let row = tableData[i]// Корректируем разделитель в зависимости от данных
+                    csv.push(row); // Добавляем строку в CSV с разделителем ';'
+                }
+
+                var csvContent = "data:text/csv;charset=utf-8," + csv.join("\n"); // Преобразуем в CSV формат
+
+                var link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download", fileName);
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+
+    }
+
+    // Event listener for export button
+    const exportButton = document.getElementById('export-button');
+    exportButton.addEventListener('click', function () {
+        exportToCsv();
+    });
+
 });
+

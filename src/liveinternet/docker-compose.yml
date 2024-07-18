@@ -62,7 +62,7 @@ services:
       FLASK_APP: app.py
     volumes:
       - ./web:/app
-      - icons:/app/icons
+      - icons:/app/static/icons
     depends_on:
       - fastapiapp
     command: flask run --host=0.0.0.0
@@ -73,6 +73,8 @@ services:
     build:
       context: ./nginx
     container_name: nginx
+    volumes:
+      - icons:/app/static/icons
     ports:
       - "80:80"
       - "443:443"

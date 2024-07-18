@@ -9,4 +9,4 @@ RUN apt-get update && \
     apt-get install -y certbot python3-certbot-nginx
 
 # Добавляем символьную ссылку и запускаем настройку нгинкса
-RUN ln -s /snap/bin/certbot /usr/bin/certbot && sudo certbot --nginx
+RUN certbot --nginx

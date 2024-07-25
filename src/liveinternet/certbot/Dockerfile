@@ -2,7 +2,7 @@
 FROM certbot/certbot:latest
 
 # Устанавливаем cron
-RUN apt-get update && apt-get install -y cron
+RUN apk add --no-cache --update cron
 
 # Создаем директорию для хранения сертификатов
 RUN mkdir -p /etc/letsencrypt
@@ -27,4 +27,4 @@ RUN crontab /etc/cron.d/certbot-cron
 RUN /usr/bin/get_or_renew_certs.sh
 
 # Запускаем cron и tail для отображения логов
-CMD cron && tail -f /var/log/cron.log
+CMD crond && tail -f /var/log/cron.log

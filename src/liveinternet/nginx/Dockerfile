@@ -4,12 +4,12 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Устанавливаем certbot для управления сертификатами
 # Устанавливаем snapd и certbot
-RUN apt-get update && \
+RUN rm /etc/apt/preferences.d/nosnap.pref && \
     apt-get remove certbot && \
-    apt-get install -y certbot python3-certbot-nginx
+    apt-get update && \
+    apt install snapd && \
+    snap install --classic certbot && \
+    certbot --nginx
 
-RUN mkdir -p /etc/letsencrypt && \
-    wget -O /etc/letsencrypt/options-ssl-nginx.conf https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
-
-# Добавляем символьную ссылку и запускаем настройку нгинкса
-RUN certbot --nginx
+# RUN mkdir -p /etc/letsencrypt && \
+#    wget -O /etc/letsencrypt/options-ssl-nginx.conf https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf

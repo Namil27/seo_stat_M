@@ -69,12 +69,14 @@ services:
     networks:
       - webnet
 
-  nginx:
+  webserver:
     build:
       context: ./nginx
-    container_name: nginx
+    container_name: webserver
     volumes:
       - icons:/app/static/icons
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
     ports:
       - "80:80"
       - "443:443"
@@ -82,7 +84,7 @@ services:
       - flaskapp
     networks:
       - webnet
-
+    restart: always
 
 volumes:
   db:

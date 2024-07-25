@@ -24,7 +24,7 @@ RUN touch /var/log/cron.log
 RUN crontab /etc/cron.d/certbot-cron
 
 # Получаем сертификат при первом запуске контейнера
-RUN /usr/bin/get_or_renew_certs.sh
+RUN /bin/sh /usr/bin/get_or_renew_certs.sh
 
 # Запускаем cron и tail для отображения логов
 CMD crond -f -d 8 && tail -f /var/log/cron.log

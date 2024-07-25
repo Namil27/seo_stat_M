@@ -7,5 +7,5 @@ COPY get_or_renew_certs.sh /usr/bin/get_or_renew_certs.sh
 # Делаем скрипт исполняемым
 RUN chmod +x /usr/bin/get_or_renew_certs.sh
 
-# Устанавливаем точку входа для автоматического обновления сертификатов
-ENTRYPOINT ["/usr/bin/get_or_renew_certs.sh"]
+# Выполняем Certbot с определенным скриптом
+ENTRYPOINT ["/bin/sh", "/usr/bin/get_or_renew_certs.sh"]

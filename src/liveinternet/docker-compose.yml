@@ -101,6 +101,7 @@ volumes:
   shared_data:
   icons:
   ssl-certs:
+  webroot:
 
 networks:
   webnet:

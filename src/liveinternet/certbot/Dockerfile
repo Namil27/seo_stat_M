@@ -1,11 +1,7 @@
-# Dockerfile for Certbot
 FROM certbot/certbot
 
-# Копируем скрипт получения и обновления сертификатов
-COPY get_or_renew_certs.sh /usr/bin/get_or_renew_certs.sh
+RUN apk add --no-cache nginx certbot-nginx
 
-# Делаем скрипт исполняемым
-RUN chmod +x /usr/bin/get_or_renew_certs.sh
+COPY get_or_renew_certs.sh /get_or_renew_certs.sh
 
-# Выполняем Certbot с определенным скриптом
-ENTRYPOINT ["/bin/sh", "/usr/bin/get_or_renew_certs.sh"]
+ENTRYPOINT ["/entrypoint.sh"]

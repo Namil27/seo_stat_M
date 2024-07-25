@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+
+  certbot:
+    build: ./certbot
+    container_name: certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+
   timescaledb:
     image: timescale/timescaledb:latest-pg16
     container_name: timescaledb
@@ -68,13 +76,6 @@ services:
     command: flask run --host=0.0.0.0
     networks:
       - webnet
-
-  certbot:
-    build: ./certbot
-    container_name: certbot
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
 
   nginx:
     build:

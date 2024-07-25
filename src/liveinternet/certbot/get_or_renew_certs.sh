@@ -1,12 +1,15 @@
 #!/bin/sh
 
-# Переменные для домена и email
+# Переменные
 DOMAIN=stat.miliutin.ru
 EMAIL=namil05@yandex.ru
 WEBROOT=/var/www/certbot
 
-# Создаем директорию для webroot, если ее нет
+# Создаем директорию webroot, если ее нет
 mkdir -p $WEBROOT
 
-# Запуск certbot для получения или обновления сертификатов
+# Получаем или обновляем сертификат
 certbot certonly --webroot -w $WEBROOT --non-interactive --agree-tos --email $EMAIL -d $DOMAIN --keep-until-expiring --renew-with-new-domains
+
+# Перезагружаем Nginx, чтобы применить новые сертификаты
+nginx -s reload

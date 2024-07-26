@@ -1,1 +1,0 @@
-0 6 * * 6 /usr/bin/get_or_renew_certs.sh >> /var/log/cron.log 2>&1

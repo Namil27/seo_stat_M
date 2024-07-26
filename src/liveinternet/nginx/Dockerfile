@@ -6,19 +6,18 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Create directory for Certbot challenges
 RUN mkdir -p /var/www/certbot
 
-# Install Certbot and its dependencies
+# Install dependencies and Certbot using snapd
 RUN apt-get update && \
     apt-get install -y \
-    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
     curl \
-    gnupg && \
-    # Add Certbot repository key
-    curl -fsSL https://dl.eff.org/certbot-auto.asc | apt-key add - && \
-    # Add Certbot repository
-    echo "deb http://ppa.launchpad.net/certbot/certbot/ubuntu focal main" > /etc/apt/sources.list.d/certbot.list && \
-    apt-get update && \
-    apt-get install -y \
-    certbot \
-    python3-certbot-nginx && \
+    snapd && \
+    # Install Certbot using snapd
+    snap install core && \
+    snap refresh core && \
+    snap install --classic certbot && \
+    # Make Certbot command available
+    ln -s /snap/bin/certbot /usr/bin/certbot && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

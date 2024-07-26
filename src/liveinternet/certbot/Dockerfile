@@ -13,4 +13,4 @@ COPY crontab /etc/crontabs/root
 RUN chmod +x /app/script.sh
 
 # Запускаем crond в форева режиме
-CMD ["crond", "-f"]
+CMD ["sh", "crontab", "-f"]

@@ -29,5 +29,9 @@ cd nginx
 # Меняем название файла с настройкой https тем самым делая его новым конфигом nginx
 mv nginx_https.conf nginx.conf
 
+cd ../
+
+docker-compose restart nginx
+
 # Удаляем ненужные образы
 docker image prune -a -f

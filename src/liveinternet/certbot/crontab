@@ -1,1 +1,2 @@
-0 0 1 * * /app/script.sh
+# Запуск обновления сертификатов в 2:30 утра каждый день
+30 1 * * * /usr/local/bin/renew_certificates.sh >> /var/log/cron.log 2>&1

@@ -104,8 +104,6 @@ volumes:
   shared_data:
   icons:
 
-
-
 networks:
   webnet:
     driver: bridge

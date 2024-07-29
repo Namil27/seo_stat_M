@@ -3,10 +3,23 @@ import re
 
 import requests
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 from unidecode import unidecode
 
 app = Flask(__name__)
+
+
+@app.context_processor
+def override_url_for():
+    return dict(url_for=_url_for)
+
+
+def _url_for(endpoint, **values):
+    if 'https' not in request.url and app.config.get("PREFERRED_URL_SCHEME") == 'https':
+        values['_scheme'] = 'https'
+        values['_external'] = True
+    return url_for(endpoint, **values)
+
 
 def normalize_text(text):
     # Приведение текста к нижнему регистру и удаление специальных символов
@@ -183,4 +196,5 @@ def search():
 
 
 if __name__ == '__main__':
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
     app.run(port=9999, debug=True)

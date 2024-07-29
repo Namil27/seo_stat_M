@@ -4,6 +4,4 @@ RUN mkdir -p "/var/www/certbot/www/.well-known/acme-challenge"
 
 RUN mkdir "scripts"
 
-COPY get_cert_and_update_nginx.sh /scripts
-
-RUN chmod +x /scripts/get_cert_and_update_nginx.sh
+COPY get_cert_and_update_nginx.sh /scripts/

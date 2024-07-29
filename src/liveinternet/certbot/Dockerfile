@@ -6,4 +6,4 @@ RUN mkdir "scripts"
 
 COPY get_cert_and_update_nginx.sh /scripts
 
-RUN chmod +x get_cert_and_update_nginx.sh
+RUN chmod +x /scripts/get_cert_and_update_nginx.sh

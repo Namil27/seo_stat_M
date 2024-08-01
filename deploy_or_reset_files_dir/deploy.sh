@@ -10,26 +10,14 @@ mkdir -p /home/stat_mil_ru/project
 git clone --branch back https://namil27:aae7ab67-f804-4616-a2bb-4b692ad5126c@gitflic.ru/project/maksim-i-nikita/stat_miliutin_ru.git /home/stat_mil_ru/project
 
 # Переходим в директорию с проектом
-cd /home/stat_mil_ru/project/src/liveinternet/certbot/
+cd /home/stat_mil_ru/project/src/liveinternet
 
-mkdir conf
-
-mkdir -p www/.well-known/acme-challenge
-
-cd ../
 # Строим и запускаем контейнеры
 docker-compose build --no-cache && docker-compose up -d
 
-# Удалям файл с настройкой для получения ключей
-rm nginx/nginx.conf
+chmod +x /home/stat_mil_ru/project/src/liveinternet/nginx/https.sh
 
-# Перемещаемся в nginx
-cd nginx
-
-# Меняем название файла с настройкой https тем самым делая его новым конфигом nginx
-mv nginx_https.conf nginx.conf
-
-cd ../
+bash /home/stat_mil_ru/project/src/liveinternet/nginx/https.sh
 
 docker-compose restart nginx
 

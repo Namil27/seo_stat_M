@@ -1,6 +1,36 @@
 version: '3.7'
 
 services:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: webserver
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /ssl/ssl_stat/conf:/etc/letsencrypt
+      - /ssl/ssl_stat/www:/var/www/certbot
+      - icons:/app/static/icons
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - flaskapp
+    networks:
+      - webnet
+    restart: always
+
+  certbot:
+    build:
+      context: ./certbot
+    container_name: certbot
+    volumes:
+      - /ssl/ssl_stat/conf:/etc/letsencrypt
+      - /ssl/ssl_stat/www:/var/www/certbot
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    entrypoint: /bin/sh -c "certbot renew --webroot -w /var/www/certbot"
+    networks:
+      - webnet
+
   timescaledb:
     image: timescale/timescaledb:latest-pg16
     container_name: timescaledb
@@ -66,19 +96,6 @@ services:
     depends_on:
       - fastapiapp
     command: flask run --host=0.0.0.0
-    networks:
-      - webnet
-
-  nginx:
-    build:
-      context: ./nginx
-    container_name: nginx
-    volumes:
-      - icons:/app/static/icons
-    ports:
-      - "80:80"
-    depends_on:
-      - flaskapp
     networks:
       - webnet
 

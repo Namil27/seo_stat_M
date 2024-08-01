@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Путь к файлу, который нужно обработать
-FILE="nginx.conf"
+FILE="/home/stat_mil_ru/project/src/liveinternet/nginx/nginx.conf"
 
 # Проверяем, существует ли файл
 if [ -f "$FILE" ]; then

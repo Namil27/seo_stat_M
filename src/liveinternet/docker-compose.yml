@@ -27,8 +27,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - /home/stat_mil_ru/project/src/liveinternet/certbot/renew_certificates.sh:/scripts/renew_certificates.sh
-    entrypoint: /bin/sh /scripts/renew_certificates.sh
+    entrypoint: /bin/sh -c "certbot certonly --webroot -w /var/www/certbot -d stat.miliutin.ru --non-interactive --agree-tos --email namil05@yandex.ru"
     networks:
       - webnet
 

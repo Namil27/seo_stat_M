@@ -45,6 +45,24 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
 
+  backup:
+    build:
+      context: ./backup
+    environment:
+      DB_NAME: liveinternet
+      DB_USER: postgres
+      DB_HOST: timescaledb
+      DB_PORT: 5432
+      ACCESS_KEY: 8d60cfe20c56444bbaad3ddb4a6e9428
+      SECRET_KEY: cacbd1cbbe914f9da69a970e374ec968
+    volumes:
+      - ./backup:/backup
+    depends_on:
+      - timescaledb
+    deploy:
+      restart_policy:
+        condition: on-failure
+
   fastapiapp:
     build: ./api
     container_name: liveinternet_api

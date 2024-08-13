@@ -1,15 +1,22 @@
-FROM alpine:latest
+FROM ubuntu:latest
 
 # Установите необходимые утилиты
-RUN apk update && apk add postgresql-client rclone bash curl
+RUN apt update && apt install -y postgresql-client rclone bash curl cron
 
-# Скопируйте скрипты в контейнер
-COPY backup.sh /usr/local/bin/backup.sh
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# Создайте необходимые директории
+RUN mkdir -p /backup
+RUN mkdir -p /root/.config/rclone
+
+# Скопируйте скрипты и конфигурационные файлы в контейнер
+COPY backup.sh /backup/backup.sh
+COPY entrypoint.sh /backup/entrypoint.sh
+COPY restore.sh /backup/restore.sh
+COPY rclone.conf /root/.config/rclone/rclone.conf
 
 # Сделайте скрипты исполняемыми
-RUN chmod +x /usr/local/bin/backup.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /backup/backup.sh
+RUN chmod +x /backup/entrypoint.sh
+RUN chmod +x /backup/restore.sh
 
 # Настройка точки входа
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/backup/entrypoint.sh"]

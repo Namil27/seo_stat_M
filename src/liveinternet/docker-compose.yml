@@ -53,10 +53,11 @@ services:
       DB_USER: postgres
       DB_HOST: timescaledb
       DB_PORT: 5432
+      DB_PASSWORD: i@eS*gs@4fSwBg\
       ACCESS_KEY: 8d60cfe20c56444bbaad3ddb4a6e9428
       SECRET_KEY: cacbd1cbbe914f9da69a970e374ec968
     volumes:
-      - ./backup:/backup
+      - backup-data:/backup-data
     depends_on:
       - timescaledb
     deploy:
@@ -121,6 +122,7 @@ volumes:
   db:
   shared_data:
   icons:
+  backup-data:
 
 networks:
   webnet:

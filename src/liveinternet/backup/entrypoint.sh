@@ -4,7 +4,7 @@
 {
     echo "SHELL=/bin/bash"
     echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    env | grep -E 'DB_NAME|DB_USER|DB_HOST|DB_PORT|ACCESS_KEY|SECRET_KEY'
+    env | grep -E 'DB_NAME|DB_USER|DB_HOST|DB_PORT|DB_PASSWORD|ACCESS_KEY|SECRET_KEY'
     echo "0 2 * * 5 /usr/local/bin/backup.sh >> /var/log/cron.log 2>&1"
 } > /etc/cron.d/backup-cron
 

@@ -320,5 +320,13 @@ document.addEventListener('DOMContentLoaded', function () {
         exportToCsv();
     });
 
+    // Обрабатываем событие keydown
+    searchInput.addEventListener('keydown', function(event) {
+        // Проверяем, если нажата клавиша Enter (код клавиши 13)
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Отключаем действие Enter
+        }
+    });
+
 });
 

@@ -3,8 +3,9 @@ import re
 
 import requests
 
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify, url_for, send_from_directory
 from unidecode import unidecode
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
@@ -165,12 +166,12 @@ def export_csv(site):
     end_date = request.args.get('e')
     if not start_date or not end_date:
         return jsonify({'error': 'no args'}), 500
-    print(start_date, end_date)
+    # print(start_date, end_date)
     api_url = f'http://23.111.123.4:8000/data/{site}'
     response = requests.get(api_url)
     raw_data = response.json()
     table_data = [[key, value] for key, value in raw_data.items() if start_date <= key <= end_date][::-1]
-    print(table_data)
+    # print(table_data)
     csv_data = [f'{index};"{line[0]}";{line[1]}' for index, line in enumerate(table_data, 1)]
 
     return jsonify({'content': ' '.join(csv_data)})
@@ -190,11 +191,21 @@ def export_csv(site):
 @app.route('/search')
 def search():
     query = request.args.get('q', '').lower()
-    print(query)
+    # print(query)
     results = find_similar_entries(sidebar_gen(), query)
     return jsonify(results)
 
 
+@app.route('/static/icons/<filename>')
+def serve_icon(filename):
+    try:
+        # Пытаемся вернуть иконку из папки static/icons
+        return send_from_directory('static/icons', filename)
+    except NotFound:
+        # Если иконка не найдена, возвращаем стандартную иконку
+        return send_from_directory('static', 'default.ico')
+
+
 if __name__ == '__main__':
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
+    app.config['PREFERRED_URL_SCHEME'] = 'http'
     app.run(port=9999, debug=True)

@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
-api_host = 'localhost'
+api_host = '23.111.123.4'
 
 
 @app.context_processor

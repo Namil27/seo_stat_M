@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
-api_host = 'liveinternet_api'
+api_host = 'localhost'
 
 
 @app.context_processor

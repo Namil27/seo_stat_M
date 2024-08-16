@@ -1,21 +1,19 @@
 {% extends 'base.html' %}
 {% block body %}
-<div id="welcome" class="hidden">
-    <div class="container d-flex justify-content-center align-items-center" style="height: 50vh;">
-        <div id="main-welcome">
-            <h1 class="mr-3 pr-3 align-top border-right inline-block align-content-center">Добро пожаловать!</h1>
-            <div class="inline-block align-middle">
-                <h2 class="font-weight-normal lead" id="desc">Выберите интересующее вас СМИ в списке слева.</h2>
+    <div id="welcome" class="hidden">
+        <div class="container d-flex justify-content-center align-items-center" style="height: 50vh;">
+            <div id="main-welcome">
+                <h1 class="mr-3 pr-3 align-top border-right inline-block align-content-center">Добро пожаловать!</h1>
+                <div class="inline-block align-middle">
+                    <h2 class="font-weight-normal lead" id="desc">Выберите интересующее вас СМИ в списке слева.</h2>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div id="main-content" class="hidden">
-    <div class="border-bottom">
+    <div id="main-content" class="hidden">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 id="site-name" class="h2"><img src="https://www.liveinternet.ru/favicon/{{ site }}.ico"
-                                                          width="24" height="24" border="0"></h1>
+            <h1 id="site-name" class="h2"></h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="input-daterange input-group me-2" id="datepicker">
                     <button type="button" class="btn btn-sm btn-outline-secondary btn-extra">
@@ -45,24 +43,25 @@
             <table id="myTable" class="table table-striped table-sm">
                 <thead>
                 <tr>
-                    <th scope="col">Индекс</th>
+                    <th scope="col">#</th>
                     <th scope="col">Дата</th>
+                    <th scope="col">День недели</th>
                     <th scope="col">Трафик</th>
+                    <th scope="col">Разница</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for line in table_data %}
-                <tr class="data-row">
-                    <td>{{ line['index'] }}</td>
-                    <td>{{ line['date'] }}</td>
-                    <td>{{ line['visitors'] }}</td>
-                </tr>
-                {% endfor %}
                 </tbody>
             </table>
         </div>
+        <footer class="bg-body-tertiary text-center text-lg-start">
+            <div class="text-center p-2 mb-2" style="background-color: rgba(0, 0, 0, 0.05); color: grey;">
+                Некоммерческий проект для анализа открытых данных по трафику российских СМИ. Devs:
+                <a class="text-body" href="https://github.com/namil27">Никита Милютин</a>,
+                <a class="text-body" href="https://github.com/Alex00999">Алексей Малахов</a>
+            </div>
+        </footer>
     </div>
-</div>
 
 
 

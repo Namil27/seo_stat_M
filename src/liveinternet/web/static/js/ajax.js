@@ -234,15 +234,59 @@ document.addEventListener('DOMContentLoaded', function () {
         const tableBody = document.querySelector('#myTable tbody');
         tableBody.innerHTML = '';
 
+        // Массив для хранения строк
+        const rows = [];
+        let previousDayVisitors = null;
+
+        // Перебираем данные
         data.forEach((row, index) => {
             const tr = document.createElement('tr');
+
+            let formattedVisitors = row.visitors !== null ? row.visitors.toLocaleString('ru') : '-';
+            const days = ['Воскресение', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: 'UTC'
+            };
+
+            // Вычисляем разницу с предыдущим днем
+            let visitorsMargin = previousDayVisitors !== null ? (row.visitors - previousDayVisitors) : null;
+            let formattedMargin = '';
+
+            if (visitorsMargin !== null) {
+                if (visitorsMargin < 0) {
+                    formattedMargin = `<span style="color: red">${visitorsMargin.toLocaleString("ru")}</span>`;
+                } else if (visitorsMargin > 0) {
+                    formattedMargin = `<span style="color: green">+${visitorsMargin.toLocaleString("ru")}</span>`;
+                }
+            }
+
+            let currentDate = new Date(row.date);
+            let localizedDate = currentDate.toLocaleDateString("ru-RU", options).replace(/ г\.$/, '');
+            let dayOfWeek = days[currentDate.getDay()];
+
             tr.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${row.date}</td>
-                <td>${row.visitors !== null ? row.visitors : '-'}</td>
-            `;
-            tableBody.appendChild(tr);
+            <td>${data.length - index}</td>
+            <td>${row.date}</td>
+            <td><span style="color: grey">${dayOfWeek}</span></td>
+            <td>${formattedVisitors}</td>
+            <td>${formattedMargin}</td>
+            `
+            ;
+
+            // Сохраняем строку в массив
+            rows.push({tr, visitors: row.visitors});
+
+            // Обновляем значение предыдущих посещений для следующей итерации
+            previousDayVisitors = row.visitors;
         });
+
+        // Добавляем строки в таблицу в обратном порядке
+        for (let i = rows.length - 1; i >= 0; i--) {
+            tableBody.appendChild(rows[i].tr);
+        }
     }
 
     searchInput.addEventListener('input', function () {
@@ -265,7 +309,6 @@ document.addEventListener('DOMContentLoaded', function () {
         var csv = [];
         const fileName = currentSite.replace(/\./g, '') + '_' + startDateInput.value + '_'
             + endDateInput.value + '.csv'
-        console.log(fileName)
         const url = `/csv/kp.ru?s=${startDateInput.value}&e=${endDateInput.value}`;
 
         // Опции запроса
@@ -321,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Обрабатываем событие keydown
-    searchInput.addEventListener('keydown', function(event) {
+    searchInput.addEventListener('keydown', function (event) {
         // Проверяем, если нажата клавиша Enter (код клавиши 13)
         if (event.key === 'Enter') {
             event.preventDefault(); // Отключаем действие Enter
@@ -329,4 +372,3 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
-

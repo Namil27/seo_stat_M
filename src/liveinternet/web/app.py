@@ -9,6 +9,8 @@ from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
+api_host = 'liveinternet_api'
+
 
 @app.context_processor
 def override_url_for():
@@ -56,7 +58,7 @@ def sidebar_gen(search=''):
             - 'link' (str): Ссылка на медиа-сайт.
             - 'visitors' (str): Форматированное количество посетителей или '. . .', если количество посетителей недоступно.
     """
-    api_rating = requests.get('http://23.111.123.4:8000/medias').json()
+    api_rating = requests.get(f'http://{api_host}:8000/medias').json()
 
     lines = []
     for rank, link in enumerate(api_rating, start=1):
@@ -71,9 +73,6 @@ def sidebar_gen(search=''):
         sidebar = find_similar_entries(lines, search)
     else:
         sidebar = lines
-
-    if not sidebar:
-        sidebar = [{'rank': '', 'link': 'Упс... такого СМИ нет', 'visitors': ''}]
 
     return sidebar
 
@@ -149,7 +148,7 @@ def content(site):
             "error": "Ошибка соединения"
         }
     """
-    api_url = f'http://23.111.123.4:8000/data/{site}'
+    api_url = f'http://{api_host}:8000/data/{site}'
 
     try:
         response = requests.get(api_url)
@@ -167,7 +166,7 @@ def export_csv(site):
     if not start_date or not end_date:
         return jsonify({'error': 'no args'}), 500
     # print(start_date, end_date)
-    api_url = f'http://23.111.123.4:8000/data/{site}'
+    api_url = f'http://{api_host}:8000/data/{site}'
     response = requests.get(api_url)
     raw_data = response.json()
     table_data = [[key, value] for key, value in raw_data.items() if start_date <= key <= end_date][::-1]
@@ -175,17 +174,6 @@ def export_csv(site):
     csv_data = [f'{index};"{line[0]}";{line[1]}' for index, line in enumerate(table_data, 1)]
 
     return jsonify({'content': ' '.join(csv_data)})
-
-
-'''
-def export_csv(site):
-    api_url = f'http://23.111.123.4:8000/data/{site}'
-    response = requests.get(api_url)
-    raw_data = response.json()
-    table_data = [f'{index};"{key}";{value}' for index, (key, value) in enumerate(raw_data.items(), 1)]
-
-    return '\n'.join(table_data)
-    '''
 
 
 @app.route('/search')
@@ -207,5 +195,6 @@ def serve_icon(filename):
 
 
 if __name__ == '__main__':
+    api_host = '23.111.123.4'
     app.config['PREFERRED_URL_SCHEME'] = 'http'
     app.run(port=9999, debug=True)

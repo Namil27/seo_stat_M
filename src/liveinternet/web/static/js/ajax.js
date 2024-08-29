@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const tr = document.createElement('tr');
 
             let formattedVisitors = row.visitors !== null ? row.visitors.toLocaleString('ru') : '-';
-            const days = ['Воскресение', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
             const options = {
                 year: 'numeric',
                 month: 'long',

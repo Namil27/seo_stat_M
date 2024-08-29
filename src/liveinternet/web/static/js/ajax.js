@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const tr = document.createElement('tr');
 
             let formattedVisitors = row.visitors !== null ? row.visitors.toLocaleString('ru') : '-';
-            const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+            const days = ['Воскресение', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
             const options = {
                 year: 'numeric',
                 month: 'long',
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tr.innerHTML = `
             <td>${data.length - index}</td>
             <td>${row.date}</td>
-            <td>${dayOfWeek}</td>
+            <td><span style="color: grey">${dayOfWeek}</span></td>
             <td>${formattedVisitors}</td>
             <td>${formattedMargin}</td>
             `
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Сохраняем строку в массив
             rows.push({tr, visitors: row.visitors});
-x
+
             // Обновляем значение предыдущих посещений для следующей итерации
             previousDayVisitors = row.visitors;
         });
